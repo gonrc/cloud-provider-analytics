@@ -1,6 +1,6 @@
 # Cloud Provider Analytics
 
-Proyecto integrador de Big Data (72.80), ITBA, 2.º cuatrimestre 2026. Prof. Diego Mosquera. Entrega individual de Gonzalo Ruiz Camauer.
+Proyecto integrador de Big Data (72.80), ITBA, 2.º cuatrimestre 2026. Prof. Diego Mosquera. Grupo 9: Nicolás Martín Amarilla Díaz, Francisco Cattaneo, Juan Manuel Rilo y Gonzalo Ruiz Camauer.
 
 Pipeline de datos para un proveedor de nube: ingesta batch y streaming de ocho fuentes, Data Lake Landing / Bronze / Silver / Gold en Parquet y marts servidos en Cassandra para FinOps, Soporte y Producto. Stack: PySpark 3.5, Structured Streaming, Parquet y Cassandra/AstraDB.
 
@@ -8,7 +8,7 @@ Pipeline de datos para un proveedor de nube: ingesta batch y streaming de ocho f
 
 | Entrega | Fecha límite | Qué incluye | Estado |
 |---|---|---|---|
-| 1 · Diseño y fundación | 28/09/2026 18:30 | [Documento de diseño v1](docs/diseno_v1.md), [decisiones](DECISIONS.md), repositorio inicial y [exploración de datos](notebooks/01_exploracion_landing.ipynb) | En curso |
+| 1 · Diseño y fundación | 05/10/2026 18:30 | [Documento de diseño v1](docs/diseno_v1.md), [decisiones](DECISIONS.md), repositorio inicial y [exploración de datos](notebooks/01_exploracion_landing.ipynb) | En curso |
 | 2 · Implementación técnica | 16/11/2026 18:30 | Bronze, Silver y Gold ejecutables, calidad, Cassandra, idempotencia | Pendiente |
 | Final · MVP y defensa | 07/12/2026 21:30 | Pipeline completo, 5 consultas, documentación, video | Pendiente |
 

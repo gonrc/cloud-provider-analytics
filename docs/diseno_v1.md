@@ -2,7 +2,7 @@
 
 Big Data (72.80) · ITBA · 2.º cuatrimestre 2026 · Prof. Diego Mosquera
 
-Gonzalo Ruiz Camauer · entrega individual · versión 1.0 · 28/09/2026
+Grupo 9: Nicolás Martín Amarilla Díaz, Francisco Cattaneo, Juan Manuel Rilo y Gonzalo Ruiz Camauer · versión 1.0 · 05/10/2026
 
 Repositorio: https://github.com/gonrc/cloud-provider-analytics
 
@@ -96,7 +96,7 @@ Distribución: el costo se concentra en compute (61.787 USD), genai (29.544) y d
 
 ## 4. Arquitectura v1
 
-Diagrama v1 · 28/09/2026. Va a cambiar en la segunda entrega, cuando refleje lo implementado.
+Diagrama v1 · 05/10/2026. Va a cambiar en la segunda entrega, cuando refleje lo implementado.
 
 ![Arquitectura v1: fuentes, Landing, capa batch y capa speed sobre el Data Lake, Cassandra y consumo](img/arquitectura_v1.svg)
 
@@ -345,7 +345,7 @@ Sesgo: la clave más pesada no puede tener más eventos que su organización, y 
 | Credenciales de AstraDB en el repo | Baja | Alto | `.env` en `.gitignore`, `.env.example` sin valores, revisión antes de cada push |
 | Datos personales en Gold (`email`, recursos `pii:true`) | Media | Medio | Hash de email en Silver, Gold sin columnas personales |
 | Versiones de Java y Spark distintas entre Colab y local | Media | Medio | PySpark 3.5.9 fijado; Colab trae Java 11 y local usa Java 17, las dos soportadas por Spark 3.5 |
-| Proyecto individual, sin quien revise | Alta | Medio | Tests, evidencias y plan de correcciones versionado después de cada feedback |
+| Cuatro personas cambiando el mismo repositorio | Media | Medio | Cada cambio en una rama y por pull request revisado por otro integrante; tests antes de mergear a `main` |
 
 ### 10.3 Decisiones abiertas
 
@@ -360,9 +360,9 @@ Sesgo: la clave más pesada no puede tener más eventos que su organización, y 
 
 ## 11. Estimación de esfuerzo, roles y recursos
 
-Estimación para un equipo real, con el porcentaje de dedicación de cada rol en cada etapa. En la cursada el proyecto lo hace una sola persona.
+Estimación para un equipo real, con el porcentaje de dedicación de cada rol en cada etapa. En la cursada el grupo tiene cuatro integrantes, así que cada uno cubre más de un rol; el reparto está pendiente.
 
-| Rol | Etapa 1 · Fundación (03/08–28/09, 8 semanas) | Etapa 2 · Implementación (28/09–16/11, 7 semanas) | Etapa 3 · MVP y defensa (16/11–07/12, 3 semanas) |
+| Rol | Etapa 1 · Fundación (03/08–05/10, 9 semanas) | Etapa 2 · Implementación (05/10–16/11, 6 semanas) | Etapa 3 · MVP y defensa (16/11–07/12, 3 semanas) |
 |---|---|---|---|
 | Líder técnico | 60% | 50% | 60% |
 | Arquitecto de datos | 80% | 40% | 30% |
@@ -370,9 +370,9 @@ Estimación para un equipo real, con el porcentaje de dedicación de cada rol en
 | Ingeniero de datos (streaming y serving) | 20% | 100% | 80% |
 | Analista de datos / ML | 20% | 50% | 80% |
 | Scrum Master | 20% | 20% | 20% |
-| **Persona-semanas** | **18,4** | **25,2** | **10,5** |
+| **Persona-semanas** | **20,7** | **21,6** | **10,5** |
 
-Total: 54 persona-semanas. La etapa 1 la llevan el arquitecto y el líder técnico. En la 2 el peso pasa a los ingenieros de datos, y en la 3 vuelven a subir el líder, que prepara la defensa, y el analista, que cierra el componente de anomalías.
+Total: 53 persona-semanas. La etapa 1 la llevan el arquitecto y el líder técnico. En la 2 el peso pasa a los ingenieros de datos, y en la 3 vuelven a subir el líder, que prepara la defensa, y el analista, que cierra el componente de anomalías.
 
 Recursos: Google Colab o una máquina local con Java 17 y Python 3.11; GitHub; AstraDB en su plan gratuito o Cassandra en Docker. No hay costo de infraestructura.
 
@@ -393,7 +393,7 @@ cloud-provider-analytics/
 └── docs/                  este documento y el plan de correcciones
 ```
 
-Convenciones: código y nombres de datos en inglés, documentación en castellano. Un commit por cambio con mensaje en presente. Lo que se suba después de las 18:30 del 28/09 va en commits que empiezan con `feedback:`, como pide la regla de corte de la consigna.
+Convenciones: código y nombres de datos en inglés, documentación en castellano. Cada cambio va en una rama y entra a `main` por pull request revisado por otro integrante. Lo que se suba después de las 18:30 del 05/10 va en commits que empiezan con `feedback:`, como pide la regla de corte de la consigna.
 
 ## 13. Próximos pasos hacia la segunda entrega
 

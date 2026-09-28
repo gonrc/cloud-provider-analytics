@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 604" width="1080" height="604" font-family="Helvetica, Arial, sans-serif">
-  <title>Cloud Provider Analytics, arquitectura v1, 28/09/2026</title>
+  <title>Cloud Provider Analytics, arquitectura v1, 05/10/2026</title>
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
@@ -11,7 +11,7 @@
   <rect width="1080" height="604" fill="#ffffff"/>
 
   <text x="16" y="28" font-size="16" font-weight="bold" fill="#1a1a1a">Cloud Provider Analytics · arquitectura v1</text>
-  <text x="16" y="46" font-size="11.5" fill="#555">28/09/2026 · patrón Lambda · cambia en la entrega 2 para reflejar lo implementado</text>
+  <text x="16" y="46" font-size="11.5" fill="#555">05/10/2026 · patrón Lambda · cambia en la entrega 2 para reflejar lo implementado</text>
 
   <!-- Fuentes -->
   <text x="16" y="186" font-size="12" font-weight="bold" fill="#333">Fuentes</text>
