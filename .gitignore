@@ -1,0 +1,20 @@
+# Entorno
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
+.DS_Store
+
+# Data Lake local: se regenera desde data/raw con `make landing`
+datalake/
+
+# Salidas de Spark que no son evidencia
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Credenciales (AstraDB y cualquier otra). Solo se versiona el .example
+.env
+config/*.local.toml
+secure-connect-*.zip

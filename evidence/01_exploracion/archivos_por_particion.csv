@@ -1,0 +1,3 @@
+particion,carpetas,archivos,eventos_por_archivo,kb_promedio
+event_date,60,3600,12.0,5.4
+ingest_date,1,60,720.0,39.7

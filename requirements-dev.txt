@@ -1,0 +1,6 @@
+-r requirements.txt
+pytest>=8
+ipykernel>=6
+nbconvert>=7
+nbformat>=5
+markdown>=3.5

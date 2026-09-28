@@ -1,0 +1,13 @@
+fuente,columna,nulos,pct
+customers_orgs,nps_score,11,13.8
+users,last_login,139,17.4
+resources,tags_json,83,20.8
+support_tickets,resolved_at,240,24.0
+support_tickets,csat,254,25.4
+nps_surveys,nps_score,19,20.7
+nps_surveys,comment,10,10.9
+billing_monthly,credits,137,57.1
+usage_events,value,877,2.0
+usage_events,unit,2075,4.8
+usage_events,carbon_kg,10800,25.0
+usage_events,genai_tokens,40068,92.8

@@ -1,0 +1,31 @@
+# Configuración del pipeline. Las rutas relativas se resuelven contra la raíz del repo.
+# Para cambiar algo sin tocar este archivo: copiarlo a config/settings.local.toml
+# (ignorado por git) y apuntar CPA_SETTINGS a esa copia.
+
+[paths]
+raw_zip     = "data/raw/cloud_provider_challenge_dataset_v1.zip"
+manifest    = "data/landing_manifest.csv"
+landing     = "datalake/landing"
+bronze      = "datalake/bronze"
+silver      = "datalake/silver"
+gold        = "datalake/gold"
+quarantine  = "datalake/quarantine"
+checkpoints = "datalake/_checkpoints"
+evidence    = "evidence"
+
+[spark]
+app_name           = "cloud-provider-analytics"
+master             = "local[*]"
+# Con 13 MB de datos, el default de 200 deja cientos de tareas vacías después de cada shuffle.
+shuffle_partitions = 8
+timezone           = "UTC"
+
+[streaming]
+# 120 archivos / 10 = 12 micro-lotes. Ver DECISIONS.md, D-05.
+max_files_per_trigger = 10
+# Umbral para marcar un evento como tardío (no se descarta). Ver D-06.
+late_threshold = "1 hour"
+
+[serving]
+# Se completa en la segunda entrega. Las credenciales van en .env, nunca acá.
+keyspace = "cloud_analytics"

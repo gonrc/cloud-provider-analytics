@@ -1,0 +1,24 @@
+fuente,hallazgo,filas
+usage_events,cost_usd_increment < -0.01,211
+usage_events,value nulo,877
+usage_events,unit nulo con value presente,2038
+billing_monthly,subtotal negativo,13
+billing_monthly,credits nulo,137
+billing_monthly,USD con exchange_rate_to_usd distinto de 1,160
+support_tickets,csat fuera de 1 a 5,40
+support_tickets,sin resolved_at (abiertos),240
+users,last_login anterior a created_at,232
+customers_orgs,nps_score fuera de -100 a 100,1
+customers_orgs,plan_tier e is_enterprise no coinciden,25
+marketing_touches,converted sin clicked,96
+resources,etiquetados pii:true,85
+users,email (dato personal),800
+usage_events,org_id que no existe en customers_orgs,0
+users,org_id que no existe en customers_orgs,0
+resources,org_id que no existe en customers_orgs,0
+support_tickets,org_id que no existe en customers_orgs,0
+billing_monthly,org_id que no existe en customers_orgs,0
+nps_surveys,org_id que no existe en customers_orgs,0
+marketing_touches,org_id que no existe en customers_orgs,0
+usage_events,resource_id que no existe en resources,0
+usage_events,service distinto al del recurso,0

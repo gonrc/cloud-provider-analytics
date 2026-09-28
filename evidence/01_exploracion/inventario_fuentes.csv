@@ -1,0 +1,9 @@
+fuente,formato,archivos,filas,columnas,filas_corruptas,clave_natural,duplicados_clave
+customers_orgs,csv,1,80,11,0,org_id,0
+users,csv,1,800,7,0,user_id,0
+resources,csv,1,400,7,0,resource_id,0
+support_tickets,csv,1,1000,8,0,ticket_id,0
+marketing_touches,csv,1,1500,7,0,touch_id,0
+nps_surveys,csv,1,92,4,0,org_id+survey_date,0
+billing_monthly,csv,1,240,8,0,invoice_id,0
+usage_events,json,120,43200,13,0,event_id,0

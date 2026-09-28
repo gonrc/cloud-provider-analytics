@@ -1,0 +1,5 @@
+configuracion,lotes,filas_en_salida,descartadas_por_watermark
+watermark 1 hour sobre timestamp,12,7228,35972
+watermark 60 days sobre timestamp,12,43200,0
+watermark 1 hour sobre ingest_ts,13,43200,0
+"misma, re-ejecutada con el mismo checkpoint",1,43200,0

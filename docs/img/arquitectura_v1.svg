@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 604" width="1080" height="604" font-family="Helvetica, Arial, sans-serif">
+  <title>Cloud Provider Analytics, arquitectura v1, 28/09/2026</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
+    </marker>
+    <marker id="aq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b04040"/>
+    </marker>
+  </defs>
+  <rect width="1080" height="604" fill="#ffffff"/>
+
+  <text x="16" y="28" font-size="16" font-weight="bold" fill="#1a1a1a">Cloud Provider Analytics · arquitectura v1</text>
+  <text x="16" y="46" font-size="11.5" fill="#555">28/09/2026 · patrón Lambda · cambia en la entrega 2 para reflejar lo implementado</text>
+
+  <!-- Fuentes -->
+  <text x="16" y="186" font-size="12" font-weight="bold" fill="#333">Fuentes</text>
+  <g font-size="11" fill="#1a1a1a">
+    <rect x="16" y="194" width="162" height="60" rx="5" fill="#fafafa" stroke="#999"/>
+    <text x="26" y="213" font-weight="bold" font-size="12">Maestros CSV</text>
+    <text x="26" y="229">customers, users, resources,</text>
+    <text x="26" y="243">tickets, marketing, nps</text>
+    <rect x="16" y="264" width="162" height="46" rx="5" fill="#fafafa" stroke="#999"/>
+    <text x="26" y="283" font-weight="bold" font-size="12">billing_monthly.csv</text>
+    <text x="26" y="299">cierre mensual</text>
+    <rect x="16" y="320" width="162" height="46" rx="5" fill="#fafafa" stroke="#999"/>
+    <text x="26" y="339" font-weight="bold" font-size="12">usage_events_stream</text>
+    <text x="26" y="355">120 archivos JSONL</text>
+  </g>
+
+  <!-- Landing -->
+  <g>
+    <path d="M206,250 v84 a52,12 0 0,0 104,0 v-84" fill="#f0f0f0" stroke="#777"/>
+    <ellipse cx="258" cy="250" rx="52" ry="12" fill="#f7f7f7" stroke="#777"/>
+    <text x="258" y="283" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#1a1a1a">Landing</text>
+    <text x="258" y="299" font-size="11" text-anchor="middle" fill="#1a1a1a">originales</text>
+    <text x="258" y="313" font-size="11" text-anchor="middle" fill="#1a1a1a">solo lectura</text>
+    <text x="258" y="327" font-size="11" text-anchor="middle" fill="#1a1a1a">SHA-256</text>
+  </g>
+  <g stroke="#444" stroke-width="1.3" fill="none" marker-end="url(#a)">
+    <path d="M178,224 L206,268"/>
+    <path d="M178,287 L206,291"/>
+    <path d="M178,343 L206,314"/>
+  </g>
+
+  <!-- Capa batch -->
+  <rect x="340" y="60" width="440" height="122" rx="8" fill="#eef4fb" stroke="#9db8d9"/>
+  <text x="352" y="79" font-size="12" font-weight="bold" fill="#2d4f7c">Capa batch · Spark</text>
+  <g font-size="11" fill="#1a1a1a">
+    <rect x="352" y="88" width="124" height="74" rx="5" fill="#ffffff" stroke="#9db8d9"/>
+    <text x="362" y="107" font-weight="bold" font-size="12">Ingesta batch</text>
+    <text x="362" y="123">spark.read</text>
+    <text x="362" y="137">esquema explícito</text>
+    <text x="362" y="151">_corrupt_record</text>
+    <rect x="498" y="88" width="124" height="74" rx="5" fill="#ffffff" stroke="#9db8d9"/>
+    <text x="508" y="107" font-weight="bold" font-size="12">Conformado</text>
+    <text x="508" y="123">casts, nulos, v1/v2,</text>
+    <text x="508" y="137">moneda, dedupe,</text>
+    <text x="508" y="151">joins broadcast</text>
+    <rect x="644" y="88" width="124" height="74" rx="5" fill="#ffffff" stroke="#9db8d9"/>
+    <text x="654" y="107" font-weight="bold" font-size="12">Marts</text>
+    <text x="654" y="123">recálculo diario</text>
+    <text x="654" y="137">y mensual, score</text>
+    <text x="654" y="151">de anomalías</text>
+  </g>
+
+  <!-- Data Lake -->
+  <rect x="340" y="206" width="440" height="166" rx="8" fill="#f6f5ef" stroke="#bdb9a3"/>
+  <text x="352" y="225" font-size="12" font-weight="bold" fill="#5a5540">Data Lake · Parquet</text>
+  <g font-size="11" fill="#1a1a1a" text-anchor="middle">
+    <rect x="352" y="236" width="124" height="52" rx="5" fill="#ecd6bf" stroke="#b58b5e"/>
+    <text x="414" y="256" font-weight="bold" font-size="12.5">Bronze</text>
+    <text x="414" y="272">tipado, mismo grano</text>
+    <text x="414" y="284" font-size="10">part. ingest_date</text>
+    <rect x="498" y="236" width="124" height="52" rx="5" fill="#e3e6ea" stroke="#8d96a1"/>
+    <text x="560" y="256" font-weight="bold" font-size="12.5">Silver</text>
+    <text x="560" y="272">conformado</text>
+    <text x="560" y="284" font-size="10">part. event_date</text>
+    <rect x="644" y="236" width="124" height="52" rx="5" fill="#f4e4a8" stroke="#b89a2c"/>
+    <text x="706" y="256" font-weight="bold" font-size="12.5">Gold</text>
+    <text x="706" y="272">marts por dominio</text>
+    <text x="706" y="284" font-size="10">part. fecha del grano</text>
+    <rect x="428" y="316" width="120" height="42" rx="5" fill="#f7dada" stroke="#c07070"/>
+    <text x="488" y="334" font-weight="bold" font-size="12">Quarantine</text>
+    <text x="488" y="349" font-size="10.5">regla, motivo, run_id</text>
+  </g>
+  <g stroke="#444" stroke-width="1.3" fill="none" marker-end="url(#a)">
+    <path d="M476,262 L498,262"/>
+    <path d="M622,262 L644,262"/>
+  </g>
+  <g stroke="#b04040" stroke-width="1.2" stroke-dasharray="4 3" fill="none" marker-end="url(#aq)">
+    <path d="M430,288 L458,316"/>
+    <path d="M546,288 L518,316"/>
+  </g>
+
+  <!-- Capa speed -->
+  <rect x="340" y="396" width="440" height="126" rx="8" fill="#eef7ef" stroke="#9fc9a4"/>
+  <text x="352" y="415" font-size="12" font-weight="bold" fill="#2f6a37">Capa speed · Structured Streaming</text>
+  <g font-size="11" fill="#1a1a1a">
+    <rect x="352" y="424" width="124" height="86" rx="5" fill="#ffffff" stroke="#9fc9a4"/>
+    <text x="362" y="443" font-weight="bold" font-size="12">readStream</text>
+    <text x="362" y="459">10 archivos por lote</text>
+    <text x="362" y="473">dedupe por event_id</text>
+    <text x="362" y="487">watermark ingest_ts</text>
+    <text x="362" y="501">1 h, checkpoint</text>
+    <rect x="498" y="424" width="270" height="86" rx="5" fill="#ffffff" stroke="#9fc9a4"/>
+    <text x="508" y="443" font-weight="bold" font-size="12">foreachBatch</text>
+    <text x="508" y="459">mismas reglas que la capa batch</text>
+    <text x="508" y="473">sobrescribe en Silver las fechas que tocó el lote</text>
+    <text x="508" y="487">y las recalcula en Gold</text>
+    <text x="508" y="501">los eventos tardíos no se descartan</text>
+  </g>
+  <path d="M476,467 L498,467" stroke="#444" stroke-width="1.3" fill="none" marker-end="url(#a)"/>
+
+  <!-- Escrituras de cada capa en el lake -->
+  <g stroke="#2d4f7c" stroke-width="1.3" fill="none" marker-end="url(#a)">
+    <path d="M414,162 L414,236"/>
+    <path d="M560,162 L560,236"/>
+    <path d="M706,162 L706,236"/>
+  </g>
+  <g stroke="#2f6a37" stroke-width="1.3" fill="none" marker-end="url(#a)">
+    <path d="M392,424 L392,288"/>
+    <path d="M590,424 L590,288"/>
+    <path d="M706,424 L706,288"/>
+  </g>
+
+  <!-- Landing hacia las dos capas -->
+  <g stroke="#444" stroke-width="1.3" fill="none" marker-end="url(#a)">
+    <path d="M258,238 L258,125 L352,125"/>
+    <path d="M258,346 L258,467 L352,467"/>
+  </g>
+  <text x="250" y="170" font-size="10.5" fill="#555" text-anchor="end">maestros y</text>
+  <text x="250" y="183" font-size="10.5" fill="#555" text-anchor="end">facturación</text>
+  <text x="250" y="410" font-size="10.5" fill="#555" text-anchor="end">eventos</text>
+
+  <!-- Serving -->
+  <g>
+    <path d="M816,236 v70 a52,12 0 0,0 104,0 v-70" fill="#ece7f5" stroke="#7d6aa6"/>
+    <ellipse cx="868" cy="236" rx="52" ry="12" fill="#f4f0fa" stroke="#7d6aa6"/>
+    <text x="868" y="268" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#1a1a1a">Cassandra</text>
+    <text x="868" y="283" font-size="11" text-anchor="middle" fill="#1a1a1a">o AstraDB</text>
+    <text x="868" y="297" font-size="11" text-anchor="middle" fill="#1a1a1a">query-first</text>
+  </g>
+  <path d="M768,262 L816,262" stroke="#444" stroke-width="1.3" fill="none" marker-end="url(#a)"/>
+  <text x="772" y="255" font-size="10.5" fill="#555">upsert</text>
+
+  <!-- Consumo -->
+  <text x="956" y="186" font-size="12" font-weight="bold" fill="#333">Consumo</text>
+  <g font-size="12" fill="#1a1a1a" text-anchor="middle">
+    <rect x="956" y="194" width="108" height="36" rx="5" fill="#fafafa" stroke="#999"/>
+    <text x="1010" y="216">FinOps</text>
+    <rect x="956" y="244" width="108" height="36" rx="5" fill="#fafafa" stroke="#999"/>
+    <text x="1010" y="266">Soporte</text>
+    <rect x="956" y="294" width="108" height="36" rx="5" fill="#fafafa" stroke="#999"/>
+    <text x="1010" y="316">Producto</text>
+  </g>
+  <g stroke="#444" stroke-width="1.3" fill="none" marker-end="url(#a)">
+    <path d="M920,256 L956,214"/>
+    <path d="M920,264 L956,262"/>
+    <path d="M920,274 L956,310"/>
+  </g>
+
+  <!-- Transversales -->
+  <rect x="16" y="544" width="1048" height="48" rx="6" fill="#f7f7f7" stroke="#cccccc"/>
+  <text x="28" y="573" font-size="12" font-weight="bold" fill="#333">Transversal</text>
+  <g font-size="11" fill="#1a1a1a">
+    <text x="124" y="563" font-weight="bold">Calidad</text>
+    <text x="124" y="580">reglas y quarantine</text>
+    <text x="310" y="563" font-weight="bold">Metadatos</text>
+    <text x="310" y="580">manifiesto, esquemas, corridas</text>
+    <text x="500" y="563" font-weight="bold">Linaje</text>
+    <text x="500" y="580">source_file, ingest_ts, run_id</text>
+    <text x="690" y="563" font-weight="bold">Seguridad</text>
+    <text x="690" y="580">email hasheado, .env fuera del repo</text>
+    <text x="900" y="563" font-weight="bold">Observabilidad</text>
+    <text x="900" y="580">métricas por lote y zona</text>
+  </g>
+</svg>
