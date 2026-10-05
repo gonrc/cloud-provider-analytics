@@ -1,0 +1,7 @@
+hallazgo,valor
+facturas,240
+USD con exchange_rate_to_usd distinto de 1,160
+subtotal negativo,13
+subtotal negativo con impuesto positivo,13
+impuesto distinto del 21% de |subtotal|,0
+organizaciones con más de una moneda en los tres meses,50

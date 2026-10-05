@@ -2,7 +2,7 @@
 
 Proyecto integrador de Big Data (72.80), ITBA, 2.º cuatrimestre 2026. Prof. Diego Mosquera. Grupo 9: Nicolás Martín Amarilla Díaz, Francisco Cattaneo, Juan Manuel Rilo y Gonzalo Ruiz Camauer.
 
-Pipeline de datos para un proveedor de nube: ingesta batch y streaming de ocho fuentes, Data Lake Landing / Bronze / Silver / Gold en Parquet y marts servidos en Cassandra para FinOps, Soporte y Producto. Stack: PySpark 3.5, Structured Streaming, Parquet y Cassandra/AstraDB.
+Pipeline de datos para un proveedor de nube: ingesta batch y streaming de ocho fuentes, Data Lake Landing / Bronze / Silver / Gold en Parquet y marts servidos en Cassandra para FinOps, Soporte y Producto. Stack: PySpark 4.0, Structured Streaming, Parquet y Cassandra/AstraDB.
 
 ## Estado
 
@@ -30,11 +30,11 @@ Lo que se suba después de la fecha límite de una entrega va en commits que emp
 
 ### En Google Colab
 
-Abrir el notebook desde GitHub: [01_exploracion_landing.ipynb en Colab](https://colab.research.google.com/github/gonrc/cloud-provider-analytics/blob/main/notebooks/01_exploracion_landing.ipynb). La primera celda instala PySpark 3.5.9, clona el repo y extrae los datos. Colab ya trae Java 11, que Spark 3.5 soporta.
+Abrir el notebook desde GitHub: [01_exploracion_landing.ipynb en Colab](https://colab.research.google.com/github/gonrc/cloud-provider-analytics/blob/main/notebooks/01_exploracion_landing.ipynb). La primera celda clona el repo y extrae los datos. Colab ya trae PySpark 4.0.4 y Java 21, así que no hay que instalar nada más.
 
 ### En local (macOS o Linux)
 
-Requisitos: Python 3.11, Java 17 (o 11) y [uv](https://docs.astral.sh/uv/). En macOS con Homebrew:
+Requisitos: Python 3.11 o posterior, Java 17 (o 21) y [uv](https://docs.astral.sh/uv/). En macOS con Homebrew:
 
 ```bash
 brew install openjdk@17
@@ -51,7 +51,7 @@ make test       # tests de casting y del control de Landing
 make clean      # borra datalake/; se regenera con make landing
 ```
 
-Salida esperada de `make landing`: `Landing coincide con el manifiesto`. `make explore` tarda menos de un minuto en una notebook, partiendo de cero.
+Salida esperada de `make landing`: `Landing coincide con el manifiesto`. `make explore` tarda unos tres minutos en una notebook, partiendo de cero.
 
 ## Estructura
 
@@ -73,10 +73,10 @@ Salida esperada de `make landing`: `Landing coincide con el manifiesto`. `make e
 - Código, tablas y columnas en inglés y en `snake_case`, con los nombres de la fuente. Documentación en castellano.
 - Ninguna lectura usa `inferSchema`: los esquemas están en `src/cpa/schemas.py`.
 - Landing no se modifica. Se regenera desde el zip y se verifica por SHA-256.
-- Rutas y parámetros en `config/settings.toml`. Credenciales solo en `.env`, que no se versiona.
+- Rutas y parámetros en `config/settings.toml`, incluido el precio de referencia de tokens de GenAI. Credenciales solo en `.env`, que no se versiona.
 - Columnas técnicas: `ingest_ts`, `source_file`, `run_id`. Columnas de calidad: prefijo `dq_`.
 
 ## Limitaciones conocidas
 
 - Por ahora solo existe Landing y la exploración. Bronze, Silver, Gold y Cassandra son de la entrega 2.
-- Las decisiones D-09, D-10 y D-11 de `DECISIONS.md` están abiertas.
+- Las decisiones D-09 (serving) y D-11 (umbral de spikes) de `DECISIONS.md` están abiertas.

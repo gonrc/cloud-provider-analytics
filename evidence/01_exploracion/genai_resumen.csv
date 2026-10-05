@@ -1,0 +1,11 @@
+medida,valor
+eventos de genai,4137
+eventos con genai_tokens (v2),3117
+tokens,2545481
+costo de todos los eventos de genai (USD),29710.44
+costo de los eventos con tokens (USD),22263.35
+"costo de eventos / tokens, USD por millón",8746.22
+USD por token por evento: mínimo,0.0
+USD por token por evento: mediana,0.0043
+USD por token por evento: máximo,3.226
+tokens × 2.0 USD por millón (USD),5.09

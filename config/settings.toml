@@ -29,3 +29,9 @@ late_threshold = "1 hour"
 [serving]
 # Se completa en la segunda entrega. Las credenciales van en .env, nunca acá.
 keyspace = "cloud_analytics"
+
+[genai]
+# Precio de referencia para el costo estimado por tokens (DECISIONS.md, D-12), en USD por
+# millón de tokens. Los eventos no separan tokens de entrada y salida, así que es un precio
+# mezclado: 3 de entrada por 1 de salida en un modelo de gama media a octubre de 2026.
+price_usd_per_million_tokens = 2.0

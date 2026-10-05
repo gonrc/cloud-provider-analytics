@@ -1,0 +1,4 @@
+escenario,facturas,revenue_usd
+"tipo de cambio como viene, con subtotales negativos",240,164184.9
+"USD = 1, con subtotales negativos",240,164293.06
+"USD = 1, sin subtotales negativos (D-10)",227,172252.22

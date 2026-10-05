@@ -33,3 +33,17 @@ def test_extract_no_pisa_lo_existente(tmp_path):
     assert extract(zpath, landing) == 1
     assert extract(zpath, landing) == 0
     assert not (landing / "README.txt").exists()
+
+
+def test_metadatos_del_sistema_no_cuentan(tmp_path):
+    landing = tmp_path / "landing"
+    landing.mkdir()
+    (landing / "a.csv").write_text("x,y\n1,2\n")
+    manifest = tmp_path / "m.csv"
+    _write_manifest(landing, manifest)
+
+    (landing / ".DS_Store").write_bytes(b"\x00finder")
+    assert verify(landing, manifest) == []
+
+    (landing / "b.csv").write_text("x\n1\n")
+    assert verify(landing, manifest) == ["sobra: b.csv"]

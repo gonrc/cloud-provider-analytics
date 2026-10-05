@@ -59,7 +59,7 @@ Lo que justifica la arquitectura es el caso, no la muestra. Un proveedor de nube
 | Volumen | 43.200 eventos; el supuesto de escala da 216 M por día. El histórico se acumula y cada reproceso vuelve a leerlo | El costo está en leer y reprocesar, no solo en guardar | Parquet columnar y particionado, Spark distribuido, retención por zona |
 | Velocidad | Los eventos llegan en micro-lotes (120 archivos de 360). La facturación, una vez por mes | La velocidad de llegada y la de respuesta son cosas distintas: FinOps necesita el costo en minutos, la factura puede esperar al cierre | Streaming solo para eventos, batch para el resto. Micro-batch alcanza: la latencia que se pide es de minutos, no de milisegundos |
 | Variedad | 7 CSV, 120 JSONL, una lista JSON dentro de un CSV (`tags_json`), 3 monedas | Cada formato necesita su lectura | Esquema explícito por fuente, normalización de moneda en Silver |
-| Veracidad | 1.309 valores numéricos como texto, 211 costos menores a -0,01, spikes de hasta 317 USD con un p99 de 20, 40 CSAT fuera de rango, tipo de cambio distinto de 1 en todas las facturas en USD (sección 3) | Un pipeline que termina sin errores puede publicar datos malos | Reglas en cada promoción, quarantine, nada de `inferSchema` |
+| Veracidad | 1.309 valores numéricos como texto, 211 costos menores a -0,01, spikes de hasta 317 USD con un p99 de 20, 40 CSAT fuera de rango, tipo de cambio distinto de 1 en todas las facturas en USD, 13 facturas con subtotal negativo (sección 3) | Un pipeline que termina sin errores puede publicar datos malos | Reglas en cada promoción, quarantine, nada de `inferSchema` |
 | Valor | Detectar un costo anómalo el mismo día y no cuando llega la factura; ver el SLA por severidad; medir adopción de GenAI | El destino es una decisión concreta de cada usuario | Gold diseñado a partir de las 5 consultas y tablas Cassandra query-first |
 | Variabilidad | El esquema de eventos cambia el 18/07/2025: v2 agrega `carbon_kg` y, en genai, `genai_tokens` | El mismo flujo tiene que leer las dos versiones | Esquema unión v1+v2 en la lectura, `schema_version` conservado en Bronze |
 
@@ -73,7 +73,7 @@ Lo que justifica la arquitectura es el caso, no la muestra. Un proveedor de nube
 | `support_tickets.csv` | 1.000 | Ticket | `ticket_id` | Diaria | Batch | 240 sin `resolved_at` (abiertos); `csat` nulo en 254 y fuera de 1 a 5 en 40 (valores 0, 6 y 7) |
 | `marketing_touches.csv` | 1.500 | Interacción | `touch_id` | Diaria | Batch | 96 conversiones sin click. Se toman como válidas (se puede convertir por otro camino) |
 | `nps_surveys.csv` | 92 | Encuesta por organización y fecha | `org_id` + `survey_date` | Diaria | Batch | `nps_score` nulo en 19, `comment` nulo en 10. Cubre 60 de las 80 organizaciones |
-| `billing_monthly.csv` | 240 | Factura por organización y mes (80 × 3) | `invoice_id` | Mensual | Batch | `credits` nulo en 137 (57%); 13 subtotales negativos; 3 monedas (USD 160, ARS 51, EUR 29); las 160 facturas en USD tienen tipo de cambio entre 0,85 y 1,12 |
+| `billing_monthly.csv` | 240 | Factura por organización y mes (80 × 3) | `invoice_id` | Mensual | Batch | `credits` nulo en 137 (57%); 13 subtotales negativos con impuesto positivo; 3 monedas (USD 160, ARS 51, EUR 29); las 160 facturas en USD tienen tipo de cambio entre 0,85 y 1,12; 50 organizaciones cambian de moneda entre meses |
 | `usage_events_stream/*.jsonl` | 43.200 en 120 archivos | Evento de uso | `event_id` | Continua (micro-lotes) | Streaming | `value` nulo en 877 y como texto en 1.309; `unit` nulo en 2.075; 211 costos < -0,01; spikes (sección 7.5) |
 
 Rangos de fecha: eventos del 03/07 al 31/08/2025; tickets del 09/05 al 31/08; marketing del 04/05 al 31/08; encuestas del 24/05 al 31/08.
@@ -91,6 +91,16 @@ Las tres se resuelven en la lectura y ninguna da error: Spark termina en verde y
 1. `value` declarado como double. Spark marca como corruptas las 1.309 filas donde el número llega entre comillas y deja `value` nulo en 2.186 filas, cuando los nulos reales son 877. Solución: leer `value` como texto y castear después con fallback, conservando el valor original (`src/cpa/casting.py`).
 2. Comillas en `resources.csv`. `tags_json` escapa las comillas duplicándolas (`"[""env:prod""]"`). Con el escape por defecto de Spark, la barra invertida, 211 de las 400 filas quedan corruptas. Solución: `escape='"'`.
 3. Los eventos no llegan en orden. Cada uno de los 120 archivos trae eventos de los 60 días. Con un watermark de una hora sobre la fecha del evento, la deduplicación en streaming descarta 35.972 de 43.200 eventos (83%). La decisión que sale de esto está en la sección 5 y en `DECISIONS.md` (D-06).
+
+### Facturación y GenAI: lo que llama la atención
+
+Las 160 facturas en USD traen `exchange_rate_to_usd` entre 0,85 y 1,12. Un dólar vale un dólar, así que en Silver el tipo de cambio de USD se fija en 1 y el original se guarda aparte. Con todas las facturas, el cambio mueve el total en 108 USD (D-10).
+
+Hay 13 facturas con subtotal negativo. En las 240 el impuesto es el 21% del subtotal en valor absoluto, y en esas 13 el impuesto es positivo. Una nota de crédito tendría el impuesto en negativo, así que no lo son: van a quarantine y no entran al revenue (D-10).
+
+Nos llama la atención que 50 de las 80 organizaciones cambien de moneda entre un mes y otro, y que los montos en ARS sean del mismo orden que en USD (mediana de 816 pesos contra 655 dólares). Al convertir, una factura en pesos queda en uno o dos dólares: las 49 facturas válidas en ARS suman 78,11 USD. Aplicamos la conversión como viene porque la consigna pide revenue en USD, pero el revenue de esas organizaciones salta de un mes a otro por la moneda y no por lo que consumieron.
+
+En GenAI, el costo de cada evento corresponde a su métrica (requests, CPU o almacenamiento) y no a los tokens. Dividido por los tokens va de 0 a 3,23 USD por token, y en total da 8.746 USD por millón de tokens, muy por encima de lo que cobra cualquier proveedor. Por eso el costo estimado se publica de dos formas (D-12).
 
 Distribución: el costo se concentra en compute (61.787 USD), genai (29.544) y database (22.635). Por organización, los eventos van de 99 a 1.227 con mediana 528. La organización más cargada tiene 2,3 veces la mediana, un sesgo moderado que a esta escala no afecta el shuffle.
 
@@ -165,10 +175,12 @@ Structured Streaming trabaja en micro-batch y no evento por evento. Para este ca
 | Zona | Qué guarda | Formato | Cómo se escribe |
 |---|---|---|---|
 | Landing | Los archivos originales de la cátedra | CSV y JSONL, sin tocar | Se extrae una vez del zip, queda en solo lectura |
-| Bronze | Las mismas filas que Landing, con tipos explícitos y columnas técnicas. Mismo grano | Parquet | Append (streaming) o sobrescritura completa por corrida (maestros) |
+| Bronze | Las mismas filas que Landing, con tipos explícitos y columnas técnicas. Mismo grano | Parquet | Append (streaming) o sobrescritura de la partición del día (maestros) |
 | Silver | Datos conformados: tipos corregidos, nulos tratados, v1 y v2 compatibles, moneda normalizada, joins con dimensiones, deduplicado por clave natural | Parquet | Sobrescritura dinámica de las particiones afectadas |
 | Gold | Marts por dominio con el grano de cada consulta | Parquet, y copia en Cassandra | Recálculo de las particiones afectadas; upsert por clave primaria en Cassandra |
 | Quarantine | Filas que no parsean o que fallan una regla, con la regla, el motivo y el `run_id` | Parquet | Append |
+
+Todas las zonas usan Parquet puro, sin Delta Lake (D-08). La consigna pide Parquet, Delta no se vio en la materia, y la idempotencia sale sin `MERGE`: checkpoints, claves naturales, sobrescritura de las particiones afectadas y upserts en Cassandra.
 
 ### 7.2 Rutas y nombres
 
@@ -192,7 +204,8 @@ Nombres de tablas y columnas en `snake_case` y en inglés, como vienen en la fue
 | Silver `usage_events` | `event_date` | Las consultas y los marts filtran por fecha de uso. 60 particiones de unos 720 eventos |
 | Gold diarios | `usage_date` (o la fecha del grano) | Mismo filtro que las consultas de rango de fechas |
 | Bronze y Silver `billing_monthly` | `month` | Es la unidad de carga: cada cierre agrega un mes |
-| Maestros (`customers_orgs`, `users`, `resources`, `support_tickets`, `nps_surveys`, `marketing_touches`) | Sin partición | Entre 80 y 1.500 filas. Particionarlos solo agregaría archivos |
+| Bronze de los demás maestros y fuentes batch (`customers_orgs`, `users`, `resources`, `support_tickets`, `nps_surveys`, `marketing_touches`) | `ingest_date` | Cada carga diaria queda como una foto completa en su carpeta. Volver a correr el día pisa solo esa partición, y las fotos guardan la historia por si una consulta necesita SCD. La consigna pide los maestros en Parquet particionado (6.2) |
+| Silver de esas mismas fuentes | Sin partición | Silver guarda la versión vigente, que sale de la última partición de Bronze. Son entre 80 y 1.500 filas: un archivo por tabla |
 
 Servicio no se usa como segunda partición en la muestra: 60 fechas por 6 servicios darían 360 carpetas de unos 120 eventos. Con el volumen del supuesto de escala sí conviene. `spark.sql.shuffle.partitions` queda en 8 (el default de 200 deja cientos de tareas vacías después de cada shuffle con estos datos) y Silver y Gold se escriben con `repartition` por la columna de partición para tener un archivo por carpeta.
 
@@ -221,7 +234,7 @@ Bronze → Silver
 - `cost_usd_increment >= -0.01`. Los 211 eventos por debajo van a quarantine; los que están entre -0,01 y 0 se toman como redondeo.
 - `unit` no nulo cuando hay `value`. Como cada métrica tiene una sola unidad, se completa desde `metric` y se marca que fue completada.
 - v1 y v2: `carbon_kg` y `genai_tokens` quedan nulos en v1, no en cero, para no confundir "no se midió" con "fue cero".
-- Moneda: `amount_usd = importe × exchange_rate_to_usd`, con `credits` nulo tomado como 0. El tratamiento de las facturas en USD con tipo de cambio distinto de 1 es una decisión abierta (sección 10).
+- Facturación (D-10): si `currency` es USD, el tipo de cambio se fija en 1 y el original queda en `exchange_rate_to_usd_raw` con un flag. Las facturas con subtotal negativo van a quarantine. El revenue de cada factura es (subtotal − créditos + impuestos) × tipo de cambio, con `credits` nulo tomado como 0.
 - CSAT fuera de 1 a 5 y NPS fuera de -100 a 100 pasan a nulo con un flag. La fila se conserva porque el resto de sus datos es válido.
 - `users.email` se reemplaza por su hash.
 - Spikes de costo: no se descartan, se marcan. Criterio preliminar: z robusto (MAD) sobre `log(1 + costo)` por servicio, mayor a 3,5. Sobre el costo sin transformar, el MAD marca 12.448 eventos (29%), porque la distribución tiene una cola derecha muy larga. Sobre el logaritmo marca 52, y el criterio "5 veces el p99" marca 75, así que los dos coinciden en el orden de magnitud. El umbral se fija en la entrega 2.
@@ -229,6 +242,7 @@ Bronze → Silver
 Silver → Gold
 
 - Solo entran filas que pasaron todas las reglas.
+- `genai_tokens_by_org_date` publica dos costos: `cost_usd`, la suma de `cost_usd_increment` de los eventos de genai, y `estimated_token_cost_usd`, los tokens por el precio de referencia de `config/settings.toml` (D-12).
 - Control de reconciliación: la suma de costo de Silver para las fechas recalculadas tiene que coincidir con la de Gold.
 
 ### 7.6 Retención
@@ -250,7 +264,7 @@ Supuestos, porque el caso no da políticas:
 
 1. `make landing` extrae Landing y la verifica contra el manifiesto. Si un archivo cambió, el pipeline no sigue.
 2. `spark.read.csv` con el esquema de `schemas.py`, `mode=PERMISSIVE` y `_corrupt_record`. Las filas corruptas van a quarantine.
-3. Se agregan las columnas técnicas y se escribe Bronze en Parquet, sobrescribiendo la tabla (o el mes, en facturación).
+3. Se agregan las columnas técnicas y se escribe Bronze en Parquet, sobrescribiendo la partición `ingest_date` del día (o el mes, en facturación).
 4. Silver aplica las reglas de la sección 7.5 y hace los joins con dimensiones. `customers_orgs` y `resources` son chicas y van por broadcast.
 5. Gold recalcula los marts: `revenue_by_org_month` desde facturación, `tickets_by_org_date` desde tickets, y los marts de uso desde Silver de eventos.
 6. Carga a Cassandra desde Spark. Cassandra escribe por clave primaria, así que volver a cargar pisa la fila y no la duplica.
@@ -275,6 +289,8 @@ La prueba de watermark del notebook resume por qué se hace así:
 | Lo mismo, re-ejecutado con el mismo checkpoint | 0 nuevas | 0 |
 
 Un duplicado que llegara con más de una hora de diferencia pasaría la capa speed, y lo descarta la regla de unicidad de `event_id` en Silver.
+
+Por qué no usamos la configuración habitual. Lo habitual es poner el watermark sobre la fecha del evento y agregar por ventanas de tiempo. Eso supone que los eventos llegan casi en orden, con algún rezagado. Acá cada archivo trae eventos de los 60 días, y con esa configuración se descarta el 83% sin ningún error. Lo que la consigna pide para el streaming sigue estando: el watermark existe y acota el estado de la deduplicación por `event_id`, el checkpoint evita releer archivos y los eventos tardíos se procesan en lugar de perderse. La ventana es diaria: el `foreachBatch` recalcula por fecha del evento los días que tocó cada lote, que equivale a una ventana fija de un día que se vuelve a abrir cuando llega un dato tardío.
 
 ## 9. Flujo batch de referencia en MapReduce
 
@@ -327,10 +343,11 @@ Sesgo: la clave más pesada no puede tener más eventos que su organización, y 
 | Supuesto | Por qué | Cómo se valida |
 |---|---|---|
 | Los timestamps de eventos están en UTC | Terminan en `Z`; la sesión de Spark fija UTC | Ya aplicado |
-| `cost_usd_increment` ya está en USD | El nombre lo dice y no hay columna de moneda en los eventos | Consulta en el foro |
+| `cost_usd_increment` ya está en USD | El nombre lo dice y no hay columna de moneda en los eventos | Ningún dato lo contradice |
 | `exchange_rate_to_usd` se multiplica por el importe | ARS 0,0016 da un tipo de cambio de 625 pesos por dólar, EUR entre 1,00 y 1,20 | Coherente con los valores |
-| `credits` nulo significa sin créditos | El 57% de las facturas no tiene; los demás valores van de 0 a 79 | Consulta en el foro |
-| Revenue = subtotal − créditos + impuestos, llevado a USD | La consigna pide "revenue con créditos e impuestos aplicados" | Consulta en el foro |
+| `credits` nulo significa sin créditos | El 57% de las facturas no tiene; los demás valores van de 0 a 79 | Decisión del equipo (D-10) |
+| Revenue = subtotal − créditos + impuestos, llevado a USD | La consigna pide "revenue con créditos e impuestos aplicados" | Decisión del equipo (D-10) |
+| Un millón de tokens de GenAI cuesta 2 USD | Precio mezclado, 3 tokens de entrada por 1 de salida, de un modelo de gama media a octubre de 2026. Los eventos no traen precio por token | Parámetro en `config/settings.toml`, se cambia sin tocar código (D-12) |
 | Una conversión sin click es válida | Se puede convertir por otro canal | Sin impacto en las consultas obligatorias |
 | Los tickets sin `resolved_at` están abiertos | Son 240 de 1.000 y no hay columna de estado | Se usan como abiertos en el SLA |
 
@@ -344,18 +361,16 @@ Sesgo: la clave más pesada no puede tener más eventos que su organización, y 
 | AstraDB no disponible o sin conexión el día de la demo | Media | Alto en la final | Cassandra local en Docker como alternativa; capturas y salidas guardadas en `evidence/` |
 | Credenciales de AstraDB en el repo | Baja | Alto | `.env` en `.gitignore`, `.env.example` sin valores, revisión antes de cada push |
 | Datos personales en Gold (`email`, recursos `pii:true`) | Media | Medio | Hash de email en Silver, Gold sin columnas personales |
-| Versiones de Java y Spark distintas entre Colab y local | Media | Medio | PySpark 3.5.9 fijado; Colab trae Java 11 y local usa Java 17, las dos soportadas por Spark 3.5 |
+| Colab cambia su imagen (hoy trae Python 3.13, Java 21 y PySpark 4.0.4) | Media | Medio | PySpark 4.0.4 fijado, la misma versión que trae Colab; local usa Java 17, que Spark 4.0 también soporta (D-02) |
+| El conector de Spark para Cassandra no tiene versión para Spark 4 | Ya ocurre | Medio | Cargar con el driver de Python desde `foreachBatch`, que la consigna permite (4.4). Los marts de Gold son chicos (D-09) |
 | Cuatro personas cambiando el mismo repositorio | Media | Medio | Cada cambio en una rama y por pull request revisado por otro integrante; tests antes de mergear a `main` |
 
 ### 10.3 Decisiones abiertas
 
 | Decisión | Opciones | Criterio | Se cierra en |
 |---|---|---|---|
-| Tipo de cambio en facturas USD | Aplicarlo como viene, o forzar 1 y marcarlo | Forzarlo cambia el total facturado en 108 USD sobre 164.185 (0,07%). Hay que decidir si es ruido o un ajuste | Consulta en el foro, antes de la entrega 2 |
-| 13 facturas con subtotal negativo | Notas de crédito válidas, o error a quarantine | Qué representa el negativo | Consulta en el foro |
 | Umbral de spikes de costo | z robusto sobre log, o percentil por servicio | No hay etiquetas de anomalía: se busca un umbral que marque pocos eventos y coincida con un criterio independiente (hoy 52 contra 75) | Entrega 2 |
-| Serving en Cassandra local o AstraDB | Docker local, o AstraDB free tier | AstraDB funciona desde Colab sin instalar nada; Cassandra local no depende de la red | Entrega 2 |
-| Formato de tabla | Parquet puro, o Delta Lake | Delta da `MERGE` y facilita los upserts, pero la consigna pide Parquet | Entrega 2 |
+| Serving en Cassandra local o AstraDB | Docker local, o AstraDB free tier | AstraDB funciona desde Colab sin instalar nada; Cassandra local no depende de la red. En los dos casos la carga va con el driver de Python | Entrega 2 |
 | Componente de analítica o ML | Score estadístico de anomalías, o modelo de MLlib | Si hay suficiente historia por organización y servicio para entrenar | Entrega 2 |
 
 ## 11. Estimación de esfuerzo, roles y recursos
@@ -374,7 +389,7 @@ Estimación para un equipo real, con el porcentaje de dedicación de cada rol en
 
 Total: 53 persona-semanas. La etapa 1 la llevan el arquitecto y el líder técnico. En la 2 el peso pasa a los ingenieros de datos, y en la 3 vuelven a subir el líder, que prepara la defensa, y el analista, que cierra el componente de anomalías.
 
-Recursos: Google Colab o una máquina local con Java 17 y Python 3.11; GitHub; AstraDB en su plan gratuito o Cassandra en Docker. No hay costo de infraestructura.
+Recursos: Google Colab, que ya trae PySpark 4.0.4 y Java 21, o una máquina local con Java 17 y Python 3.11 o posterior; GitHub; AstraDB en su plan gratuito o Cassandra en Docker. No hay costo de infraestructura.
 
 ## 12. Repositorio
 
@@ -397,9 +412,8 @@ Convenciones: código y nombres de datos en inglés, documentación en castellan
 
 ## 13. Próximos pasos hacia la segunda entrega
 
-1. Cerrar las decisiones abiertas de facturación con una consulta en el foro.
-2. Bronze batch de los siete CSV y Bronze streaming de eventos con la configuración de la sección 8.2.
-3. Silver de eventos y de `customers_orgs`, con las reglas de la sección 7.5 y quarantine.
-4. Mart `org_daily_usage_by_service` y su tabla en Cassandra, con dos consultas CQL.
-5. Registro por corrida y prueba de idempotencia con conteos antes y después.
-6. Actualizar este diagrama para que muestre lo implementado.
+1. Bronze batch de los siete CSV, particionado por `ingest_date` (facturación por `month`), y Bronze streaming de eventos con la configuración de la sección 8.2.
+2. Silver de eventos, `customers_orgs` y facturación, con las reglas de la sección 7.5 y quarantine.
+3. Mart `org_daily_usage_by_service` y su tabla en Cassandra, cargada con el driver de Python, con dos consultas CQL.
+4. Registro por corrida y prueba de idempotencia con conteos antes y después.
+5. Actualizar este diagrama para que muestre lo implementado.

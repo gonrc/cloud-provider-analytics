@@ -13,11 +13,14 @@ def cast_with_fallback(df: DataFrame, column: str, dtype: str) -> DataFrame:
 
     Una fila con cast fallido no se descarta acá: la regla de calidad decide si
     va a quarantine.
+
+    Usa try_cast y no cast: Spark 4 trae el modo ANSI activado y un cast
+    inválido corta el job con error en vez de devolver nulo.
     """
     raw = f"{column}_raw"
     return (
         df.withColumn(raw, F.trim(F.col(column).cast("string")))
-        .withColumn(column, F.col(raw).cast(dtype))
+        .withColumn(column, F.col(raw).try_cast(dtype))
         .withColumn(
             f"{column}_cast_failed",
             F.col(raw).isNotNull() & (F.col(raw) != "") & F.col(column).isNull(),

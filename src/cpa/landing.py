@@ -20,6 +20,9 @@ from pathlib import Path
 from cpa.config import load_settings
 
 PREFIX = "datalake/landing/"
+# Archivos que el sistema operativo crea al abrir una carpeta (Finder, Explorer).
+# No son datos: no cuentan como archivos de más en Landing.
+OS_METADATA = {".DS_Store", "Icon\r", "Thumbs.db", "desktop.ini"}
 
 
 def extract(zip_path: str, landing_dir: str) -> int:
@@ -43,7 +46,7 @@ def extract(zip_path: str, landing_dir: str) -> int:
 def build_manifest(landing_dir: str) -> list[dict]:
     landing = Path(landing_dir)
     rows = []
-    for path in sorted(p for p in landing.rglob("*") if p.is_file()):
+    for path in sorted(p for p in landing.rglob("*") if p.is_file() and p.name not in OS_METADATA):
         rows.append({
             "path": path.relative_to(landing).as_posix(),
             "bytes": path.stat().st_size,

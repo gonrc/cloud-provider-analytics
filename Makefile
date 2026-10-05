@@ -1,4 +1,4 @@
-# Requiere Java 17 (o 11) en JAVA_HOME. En macOS con Homebrew:
+# Requiere Java 17 (o 21) en JAVA_HOME. En macOS con Homebrew:
 #   export JAVA_HOME=$(brew --prefix openjdk@17)/libexec/openjdk.jdk/Contents/Home
 PY ?= .venv/bin/python
 export PYTHONPATH := src

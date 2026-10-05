@@ -1,166 +1,118 @@
 == Physical Plan ==
-AdaptiveSparkPlan (26)
-+- Project (25)
-   +- BroadcastHashJoin LeftOuter BuildRight (24)
-      :- HashAggregate (18)
-      :  +- Exchange (17)
-      :     +- HashAggregate (16)
-      :        +- Project (15)
-      :           +- Filter (14)
+AdaptiveSparkPlan (21)
++- Project (20)
+   +- BroadcastHashJoin LeftOuter BuildRight (19)
+      :- HashAggregate (13)
+      :  +- Exchange (12)
+      :     +- HashAggregate (11)
+      :        +- Project (10)
+      :           +- Filter (9)
       :              +- InMemoryTableScan (1)
       :                    +- InMemoryRelation (2)
-      :                          +- AdaptiveSparkPlan (13)
-                                    +- == Final Plan ==
-                                       * Project (9)
-                                       +- * Project (8)
-                                          +- * Project (7)
-                                             +- TableCacheQueryStage (6), Statistics(sizeInBytes=6.0 MiB, rowCount=4.32E+4)
-                                                +- InMemoryTableScan (3)
-                                                      +- InMemoryRelation (4)
-                                                            +- Scan json  (5)
-                                    +- == Initial Plan ==
-                                       Project (12)
-                                       +- Project (11)
-                                          +- Project (10)
-                                             +- InMemoryTableScan (3)
-                                                   +- InMemoryRelation (4)
-                                                         +- Scan json  (5)
-      +- BroadcastExchange (23)
-         +- Filter (22)
-            +- InMemoryTableScan (19)
-                  +- InMemoryRelation (20)
-                        +- Scan csv  (21)
+      :                          +- * Project (8)
+      :                             +- * Project (7)
+      :                                +- * Project (6)
+      :                                   +- InMemoryTableScan (3)
+      :                                         +- InMemoryRelation (4)
+      :                                               +- Scan json  (5)
+      +- BroadcastExchange (18)
+         +- Filter (17)
+            +- InMemoryTableScan (14)
+                  +- InMemoryRelation (15)
+                        +- Scan csv  (16)
 
 
 (1) InMemoryTableScan
-Output [8]: [carbon_kg#424, cost_usd_increment#422, genai_tokens#425L, metric#419, org_id#415, service#417, timestamp#414, value#10726]
-Arguments: [carbon_kg#424, cost_usd_increment#422, genai_tokens#425L, metric#419, org_id#415, service#417, timestamp#414, value#10726], [isnotnull(cost_usd_increment#422), (cost_usd_increment#422 >= -0.01)]
+Output [8]: [carbon_kg#365, cost_usd_increment#363, genai_tokens#366L, metric#360, org_id#356, service#358, timestamp#355, value#10518]
+Arguments: [carbon_kg#365, cost_usd_increment#363, genai_tokens#366L, metric#360, org_id#356, service#358, timestamp#355, value#10518], [isnotnull(cost_usd_increment#363), (cost_usd_increment#363 >= -0.01)]
 
 (2) InMemoryRelation
-Arguments: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710, value_cast_failed#10742], CachedRDDBuilder(org.apache.spark.sql.execution.columnar.DefaultCachedBatchSerializer@437c0381,StorageLevel(disk, memory, deserialized, 1 replicas),AdaptiveSparkPlan isFinalPlan=true
-+- == Final Plan ==
-   *(1) Project [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710, ((isnotnull(value_raw#10710) AND NOT (value_raw#10710 = )) AND isnull(value#10726)) AS value_cast_failed#10742]
-   +- *(1) Project [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, cast(value_raw#10710 as double) AS value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710]
-      +- *(1) Project [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, trim(value#420, None) AS value_raw#10710]
-         +- TableCacheQueryStage 0
-            +- InMemoryTableScan [_corrupt_record#426, carbon_kg#424, cost_usd_increment#422, event_id#413, genai_tokens#425L, metric#419, org_id#415, region#418, resource_id#416, schema_version#423, service#417, timestamp#414, unit#421, value#420]
-                  +- InMemoryRelation [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#420, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426], StorageLevel(disk, memory, deserialized, 1 replicas)
-                        +- FileScan json [event_id#413,timestamp#414,org_id#415,resource_id#416,service#417,region#418,metric#419,value#420,unit#421,cost_usd_increment#422,schema_version#423,carbon_kg#424,genai_tokens#425L,_corrupt_record#426] Batched: false, DataFilters: [], Format: JSON, Location: InMemoryFileIndex(120 paths)[file:/Users/grc/Documents/cloud-provider-analytics/datalake/landing/..., PartitionFilters: [], PushedFilters: [], ReadSchema: struct<event_id:string,timestamp:timestamp,org_id:string,resource_id:string,service:string,region...
-+- == Initial Plan ==
-   Project [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710, ((isnotnull(value_raw#10710) AND NOT (value_raw#10710 = )) AND isnull(value#10726)) AS value_cast_failed#10742]
-   +- Project [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, cast(value_raw#10710 as double) AS value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710]
-      +- Project [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, trim(value#420, None) AS value_raw#10710]
-         +- InMemoryTableScan [_corrupt_record#426, carbon_kg#424, cost_usd_increment#422, event_id#413, genai_tokens#425L, metric#419, org_id#415, region#418, resource_id#416, schema_version#423, service#417, timestamp#414, unit#421, value#420]
-               +- InMemoryRelation [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#420, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426], StorageLevel(disk, memory, deserialized, 1 replicas)
-                     +- FileScan json [event_id#413,timestamp#414,org_id#415,resource_id#416,service#417,region#418,metric#419,value#420,unit#421,cost_usd_increment#422,schema_version#423,carbon_kg#424,genai_tokens#425L,_corrupt_record#426] Batched: false, DataFilters: [], Format: JSON, Location: InMemoryFileIndex(120 paths)[file:/Users/grc/Documents/cloud-provider-analytics/datalake/landing/..., PartitionFilters: [], PushedFilters: [], ReadSchema: struct<event_id:string,timestamp:timestamp,org_id:string,resource_id:string,service:string,region...
-,None)
+Arguments: [event_id#354, timestamp#355, org_id#356, resource_id#357, service#358, region#359, metric#360, value#10518, unit#362, cost_usd_increment#363, schema_version#364, carbon_kg#365, genai_tokens#366L, _corrupt_record#367, value_raw#10517, value_cast_failed#10519], StorageLevel(disk, memory, deserialized, 1 replicas)
 
 (3) InMemoryTableScan
-Output [14]: [_corrupt_record#426, carbon_kg#424, cost_usd_increment#422, event_id#413, genai_tokens#425L, metric#419, org_id#415, region#418, resource_id#416, schema_version#423, service#417, timestamp#414, unit#421, value#420]
-Arguments: [_corrupt_record#426, carbon_kg#424, cost_usd_increment#422, event_id#413, genai_tokens#425L, metric#419, org_id#415, region#418, resource_id#416, schema_version#423, service#417, timestamp#414, unit#421, value#420]
+Output [14]: [_corrupt_record#367, carbon_kg#365, cost_usd_increment#363, event_id#354, genai_tokens#366L, metric#360, org_id#356, region#359, resource_id#357, schema_version#364, service#358, timestamp#355, unit#362, value#361]
+Arguments: [_corrupt_record#367, carbon_kg#365, cost_usd_increment#363, event_id#354, genai_tokens#366L, metric#360, org_id#356, region#359, resource_id#357, schema_version#364, service#358, timestamp#355, unit#362, value#361]
 
 (4) InMemoryRelation
-Arguments: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#420, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426], CachedRDDBuilder(org.apache.spark.sql.execution.columnar.DefaultCachedBatchSerializer@437c0381,StorageLevel(disk, memory, deserialized, 1 replicas),FileScan json [event_id#413,timestamp#414,org_id#415,resource_id#416,service#417,region#418,metric#419,value#420,unit#421,cost_usd_increment#422,schema_version#423,carbon_kg#424,genai_tokens#425L,_corrupt_record#426] Batched: false, DataFilters: [], Format: JSON, Location: InMemoryFileIndex(120 paths)[file:/Users/grc/Documents/cloud-provider-analytics/datalake/landing/..., PartitionFilters: [], PushedFilters: [], ReadSchema: struct<event_id:string,timestamp:timestamp,org_id:string,resource_id:string,service:string,region...
-,None)
+Arguments: [event_id#354, timestamp#355, org_id#356, resource_id#357, service#358, region#359, metric#360, value#361, unit#362, cost_usd_increment#363, schema_version#364, carbon_kg#365, genai_tokens#366L, _corrupt_record#367], StorageLevel(disk, memory, deserialized, 1 replicas)
 
 (5) Scan json 
-Output [14]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#420, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426]
+Output [14]: [event_id#354, timestamp#355, org_id#356, resource_id#357, service#358, region#359, metric#360, value#361, unit#362, cost_usd_increment#363, schema_version#364, carbon_kg#365, genai_tokens#366L, _corrupt_record#367]
 Batched: false
 Location: InMemoryFileIndex [file:/Users/grc/Documents/cloud-provider-analytics/datalake/landing/usage_events_stream/events_part_0000.jsonl, ... 119 entries]
 ReadSchema: struct<event_id:string,timestamp:timestamp,org_id:string,resource_id:string,service:string,region:string,metric:string,value:string,unit:string,cost_usd_increment:double,schema_version:int,carbon_kg:double,genai_tokens:bigint,_corrupt_record:string>
 
-(6) TableCacheQueryStage
-Output [14]: [_corrupt_record#426, carbon_kg#424, cost_usd_increment#422, event_id#413, genai_tokens#425L, metric#419, org_id#415, region#418, resource_id#416, schema_version#423, service#417, timestamp#414, unit#421, value#420]
-Arguments: 0
+(6) Project [codegen id : 1]
+Output [14]: [event_id#354, timestamp#355, org_id#356, resource_id#357, service#358, region#359, metric#360, unit#362, cost_usd_increment#363, schema_version#364, carbon_kg#365, genai_tokens#366L, _corrupt_record#367, trim(value#361, None) AS value_raw#10517]
+Input [14]: [_corrupt_record#367, carbon_kg#365, cost_usd_increment#363, event_id#354, genai_tokens#366L, metric#360, org_id#356, region#359, resource_id#357, schema_version#364, service#358, timestamp#355, unit#362, value#361]
 
 (7) Project [codegen id : 1]
-Output [14]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, trim(value#420, None) AS value_raw#10710]
-Input [14]: [_corrupt_record#426, carbon_kg#424, cost_usd_increment#422, event_id#413, genai_tokens#425L, metric#419, org_id#415, region#418, resource_id#416, schema_version#423, service#417, timestamp#414, unit#421, value#420]
+Output [15]: [event_id#354, timestamp#355, org_id#356, resource_id#357, service#358, region#359, metric#360, try_cast(value_raw#10517 as double) AS value#10518, unit#362, cost_usd_increment#363, schema_version#364, carbon_kg#365, genai_tokens#366L, _corrupt_record#367, value_raw#10517]
+Input [14]: [event_id#354, timestamp#355, org_id#356, resource_id#357, service#358, region#359, metric#360, unit#362, cost_usd_increment#363, schema_version#364, carbon_kg#365, genai_tokens#366L, _corrupt_record#367, value_raw#10517]
 
 (8) Project [codegen id : 1]
-Output [15]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, cast(value_raw#10710 as double) AS value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710]
-Input [14]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710]
+Output [16]: [event_id#354, timestamp#355, org_id#356, resource_id#357, service#358, region#359, metric#360, value#10518, unit#362, cost_usd_increment#363, schema_version#364, carbon_kg#365, genai_tokens#366L, _corrupt_record#367, value_raw#10517, ((isnotnull(value_raw#10517) AND NOT (value_raw#10517 = )) AND isnull(value#10518)) AS value_cast_failed#10519]
+Input [15]: [event_id#354, timestamp#355, org_id#356, resource_id#357, service#358, region#359, metric#360, value#10518, unit#362, cost_usd_increment#363, schema_version#364, carbon_kg#365, genai_tokens#366L, _corrupt_record#367, value_raw#10517]
 
-(9) Project [codegen id : 1]
-Output [16]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710, ((isnotnull(value_raw#10710) AND NOT (value_raw#10710 = )) AND isnull(value#10726)) AS value_cast_failed#10742]
-Input [15]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710]
+(9) Filter
+Input [8]: [carbon_kg#365, cost_usd_increment#363, genai_tokens#366L, metric#360, org_id#356, service#358, timestamp#355, value#10518]
+Condition : (isnotnull(cost_usd_increment#363) AND (cost_usd_increment#363 >= -0.01))
 
 (10) Project
-Output [14]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, trim(value#420, None) AS value_raw#10710]
-Input [14]: [_corrupt_record#426, carbon_kg#424, cost_usd_increment#422, event_id#413, genai_tokens#425L, metric#419, org_id#415, region#418, resource_id#416, schema_version#423, service#417, timestamp#414, unit#421, value#420]
+Output [8]: [org_id#356, service#358, metric#360, value#10518, cost_usd_increment#363, carbon_kg#365, genai_tokens#366L, cast(timestamp#355 as date) AS usage_date#36749]
+Input [8]: [carbon_kg#365, cost_usd_increment#363, genai_tokens#366L, metric#360, org_id#356, service#358, timestamp#355, value#10518]
 
-(11) Project
-Output [15]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, cast(value_raw#10710 as double) AS value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710]
-Input [14]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710]
+(11) HashAggregate
+Input [8]: [org_id#356, service#358, metric#360, value#10518, cost_usd_increment#363, carbon_kg#365, genai_tokens#366L, usage_date#36749]
+Keys [3]: [org_id#356, usage_date#36749, service#358]
+Functions [7]: [partial_sum(cost_usd_increment#363), partial_sum(CASE WHEN (metric#360 = requests) THEN value#10518 END), partial_sum(CASE WHEN (metric#360 = cpu_hours) THEN value#10518 END), partial_sum(CASE WHEN (metric#360 = storage_gb_hours) THEN value#10518 END), partial_sum(genai_tokens#366L), partial_sum(carbon_kg#365), partial_count(1)]
+Aggregate Attributes [7]: [sum#37201, sum#37202, sum#37203, sum#37204, sum#37205L, sum#37206, count#37207L]
+Results [10]: [org_id#356, usage_date#36749, service#358, sum#37208, sum#37209, sum#37210, sum#37211, sum#37212L, sum#37213, count#37214L]
 
-(12) Project
-Output [16]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710, ((isnotnull(value_raw#10710) AND NOT (value_raw#10710 = )) AND isnull(value#10726)) AS value_cast_failed#10742]
-Input [15]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710]
+(12) Exchange
+Input [10]: [org_id#356, usage_date#36749, service#358, sum#37208, sum#37209, sum#37210, sum#37211, sum#37212L, sum#37213, count#37214L]
+Arguments: hashpartitioning(org_id#356, usage_date#36749, service#358, 8), ENSURE_REQUIREMENTS, [plan_id=15384]
 
-(13) AdaptiveSparkPlan
-Output [16]: [event_id#413, timestamp#414, org_id#415, resource_id#416, service#417, region#418, metric#419, value#10726, unit#421, cost_usd_increment#422, schema_version#423, carbon_kg#424, genai_tokens#425L, _corrupt_record#426, value_raw#10710, value_cast_failed#10742]
-Arguments: isFinalPlan=true
+(13) HashAggregate
+Input [10]: [org_id#356, usage_date#36749, service#358, sum#37208, sum#37209, sum#37210, sum#37211, sum#37212L, sum#37213, count#37214L]
+Keys [3]: [org_id#356, usage_date#36749, service#358]
+Functions [7]: [sum(cost_usd_increment#363), sum(CASE WHEN (metric#360 = requests) THEN value#10518 END), sum(CASE WHEN (metric#360 = cpu_hours) THEN value#10518 END), sum(CASE WHEN (metric#360 = storage_gb_hours) THEN value#10518 END), sum(genai_tokens#366L), sum(carbon_kg#365), count(1)]
+Aggregate Attributes [7]: [sum(cost_usd_increment#363)#36775, sum(CASE WHEN (metric#360 = requests) THEN value#10518 END)#36776, sum(CASE WHEN (metric#360 = cpu_hours) THEN value#10518 END)#36777, sum(CASE WHEN (metric#360 = storage_gb_hours) THEN value#10518 END)#36778, sum(genai_tokens#366L)#36779L, sum(carbon_kg#365)#36780, count(1)#36774L]
+Results [10]: [org_id#356, usage_date#36749, service#358, round(sum(cost_usd_increment#363)#36775, 4) AS daily_cost_usd#36750, sum(CASE WHEN (metric#360 = requests) THEN value#10518 END)#36776 AS requests#36751, sum(CASE WHEN (metric#360 = cpu_hours) THEN value#10518 END)#36777 AS cpu_hours#36752, sum(CASE WHEN (metric#360 = storage_gb_hours) THEN value#10518 END)#36778 AS storage_gb_hours#36753, sum(genai_tokens#366L)#36779L AS genai_tokens#36754L, round(sum(carbon_kg#365)#36780, 6) AS carbon_kg#36755, count(1)#36774L AS eventos#36756L]
 
-(14) Filter
-Input [8]: [carbon_kg#424, cost_usd_increment#422, genai_tokens#425L, metric#419, org_id#415, service#417, timestamp#414, value#10726]
-Condition : (isnotnull(cost_usd_increment#422) AND (cost_usd_increment#422 >= -0.01))
-
-(15) Project
-Output [8]: [org_id#415, service#417, metric#419, value#10726, cost_usd_increment#422, carbon_kg#424, genai_tokens#425L, cast(timestamp#414 as date) AS usage_date#38472]
-Input [8]: [carbon_kg#424, cost_usd_increment#422, genai_tokens#425L, metric#419, org_id#415, service#417, timestamp#414, value#10726]
-
-(16) HashAggregate
-Input [8]: [org_id#415, service#417, metric#419, value#10726, cost_usd_increment#422, carbon_kg#424, genai_tokens#425L, usage_date#38472]
-Keys [3]: [org_id#415, usage_date#38472, service#417]
-Functions [7]: [partial_sum(cost_usd_increment#422), partial_sum(CASE WHEN (metric#419 = requests) THEN value#10726 END), partial_sum(CASE WHEN (metric#419 = cpu_hours) THEN value#10726 END), partial_sum(CASE WHEN (metric#419 = storage_gb_hours) THEN value#10726 END), partial_sum(genai_tokens#425L), partial_sum(carbon_kg#424), partial_count(1)]
-Aggregate Attributes [7]: [sum#38963, sum#38964, sum#38965, sum#38966, sum#38967L, sum#38968, count#38969L]
-Results [10]: [org_id#415, usage_date#38472, service#417, sum#38970, sum#38971, sum#38972, sum#38973, sum#38974L, sum#38975, count#38976L]
-
-(17) Exchange
-Input [10]: [org_id#415, usage_date#38472, service#417, sum#38970, sum#38971, sum#38972, sum#38973, sum#38974L, sum#38975, count#38976L]
-Arguments: hashpartitioning(org_id#415, usage_date#38472, service#417, 8), ENSURE_REQUIREMENTS, [plan_id=14326]
-
-(18) HashAggregate
-Input [10]: [org_id#415, usage_date#38472, service#417, sum#38970, sum#38971, sum#38972, sum#38973, sum#38974L, sum#38975, count#38976L]
-Keys [3]: [org_id#415, usage_date#38472, service#417]
-Functions [7]: [sum(cost_usd_increment#422), sum(CASE WHEN (metric#419 = requests) THEN value#10726 END), sum(CASE WHEN (metric#419 = cpu_hours) THEN value#10726 END), sum(CASE WHEN (metric#419 = storage_gb_hours) THEN value#10726 END), sum(genai_tokens#425L), sum(carbon_kg#424), count(1)]
-Aggregate Attributes [7]: [sum(cost_usd_increment#422)#38507, sum(CASE WHEN (metric#419 = requests) THEN value#10726 END)#38509, sum(CASE WHEN (metric#419 = cpu_hours) THEN value#10726 END)#38511, sum(CASE WHEN (metric#419 = storage_gb_hours) THEN value#10726 END)#38513, sum(genai_tokens#425L)#38515L, sum(carbon_kg#424)#38517, count(1)#38519L]
-Results [10]: [org_id#415, usage_date#38472, service#417, round(sum(cost_usd_increment#422)#38507, 4) AS daily_cost_usd#38508, sum(CASE WHEN (metric#419 = requests) THEN value#10726 END)#38509 AS requests#38510, sum(CASE WHEN (metric#419 = cpu_hours) THEN value#10726 END)#38511 AS cpu_hours#38512, sum(CASE WHEN (metric#419 = storage_gb_hours) THEN value#10726 END)#38513 AS storage_gb_hours#38514, sum(genai_tokens#425L)#38515L AS genai_tokens#38516L, round(sum(carbon_kg#424)#38517, 6) AS carbon_kg#38518, count(1)#38519L AS eventos#38520L]
-
-(19) InMemoryTableScan
+(14) InMemoryTableScan
 Output [3]: [org_id#0, plan_tier#4, industry#2]
 Arguments: [org_id#0, plan_tier#4, industry#2], [isnotnull(org_id#0)]
 
-(20) InMemoryRelation
-Arguments: [org_id#0, org_name#1, industry#2, hq_region#3, plan_tier#4, is_enterprise#5, signup_date#6, sales_rep#7, lifecycle_stage#8, marketing_source#9, nps_score#10, _corrupt_record#11], CachedRDDBuilder(org.apache.spark.sql.execution.columnar.DefaultCachedBatchSerializer@437c0381,StorageLevel(disk, memory, deserialized, 1 replicas),FileScan csv [org_id#0,org_name#1,industry#2,hq_region#3,plan_tier#4,is_enterprise#5,signup_date#6,sales_rep#7,lifecycle_stage#8,marketing_source#9,nps_score#10,_corrupt_record#11] Batched: false, DataFilters: [], Format: CSV, Location: InMemoryFileIndex(1 paths)[file:/Users/grc/Documents/cloud-provider-analytics/datalake/landing/cu..., PartitionFilters: [], PushedFilters: [], ReadSchema: struct<org_id:string,org_name:string,industry:string,hq_region:string,plan_tier:string,is_enterpr...
-,None)
+(15) InMemoryRelation
+Arguments: [org_id#0, org_name#1, industry#2, hq_region#3, plan_tier#4, is_enterprise#5, signup_date#6, sales_rep#7, lifecycle_stage#8, marketing_source#9, nps_score#10, _corrupt_record#11], StorageLevel(disk, memory, deserialized, 1 replicas)
 
-(21) Scan csv 
+(16) Scan csv 
 Output [12]: [org_id#0, org_name#1, industry#2, hq_region#3, plan_tier#4, is_enterprise#5, signup_date#6, sales_rep#7, lifecycle_stage#8, marketing_source#9, nps_score#10, _corrupt_record#11]
 Batched: false
 Location: InMemoryFileIndex [file:/Users/grc/Documents/cloud-provider-analytics/datalake/landing/customers_orgs.csv]
 ReadSchema: struct<org_id:string,org_name:string,industry:string,hq_region:string,plan_tier:string,is_enterprise:boolean,signup_date:date,sales_rep:string,lifecycle_stage:string,marketing_source:string,nps_score:double,_corrupt_record:string>
 
-(22) Filter
+(17) Filter
 Input [3]: [org_id#0, plan_tier#4, industry#2]
 Condition : isnotnull(org_id#0)
 
-(23) BroadcastExchange
+(18) BroadcastExchange
 Input [3]: [org_id#0, plan_tier#4, industry#2]
-Arguments: HashedRelationBroadcastMode(List(input[0, string, false]),false), [plan_id=14329]
+Arguments: HashedRelationBroadcastMode(List(input[0, string, false]),false), [plan_id=15387]
 
-(24) BroadcastHashJoin
-Left keys [1]: [org_id#415]
+(19) BroadcastHashJoin
+Left keys [1]: [org_id#356]
 Right keys [1]: [org_id#0]
 Join type: LeftOuter
 Join condition: None
 
-(25) Project
-Output [12]: [org_id#415, usage_date#38472, service#417, daily_cost_usd#38508, requests#38510, cpu_hours#38512, storage_gb_hours#38514, genai_tokens#38516L, carbon_kg#38518, eventos#38520L, plan_tier#4, industry#2]
-Input [13]: [org_id#415, usage_date#38472, service#417, daily_cost_usd#38508, requests#38510, cpu_hours#38512, storage_gb_hours#38514, genai_tokens#38516L, carbon_kg#38518, eventos#38520L, org_id#0, plan_tier#4, industry#2]
+(20) Project
+Output [12]: [org_id#356, usage_date#36749, service#358, daily_cost_usd#36750, requests#36751, cpu_hours#36752, storage_gb_hours#36753, genai_tokens#36754L, carbon_kg#36755, eventos#36756L, plan_tier#4, industry#2]
+Input [13]: [org_id#356, usage_date#36749, service#358, daily_cost_usd#36750, requests#36751, cpu_hours#36752, storage_gb_hours#36753, genai_tokens#36754L, carbon_kg#36755, eventos#36756L, org_id#0, plan_tier#4, industry#2]
 
-(26) AdaptiveSparkPlan
-Output [12]: [org_id#415, usage_date#38472, service#417, daily_cost_usd#38508, requests#38510, cpu_hours#38512, storage_gb_hours#38514, genai_tokens#38516L, carbon_kg#38518, eventos#38520L, plan_tier#4, industry#2]
+(21) AdaptiveSparkPlan
+Output [12]: [org_id#356, usage_date#36749, service#358, daily_cost_usd#36750, requests#36751, cpu_hours#36752, storage_gb_hours#36753, genai_tokens#36754L, carbon_kg#36755, eventos#36756L, plan_tier#4, industry#2]
 Arguments: isFinalPlan=false
 
 
