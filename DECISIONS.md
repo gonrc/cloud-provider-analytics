@@ -90,7 +90,7 @@ Consecuencias. Un duplicado que llegue con más de una hora de diferencia pasa l
 
 ## D-07 · Particionado por zona
 
-Evidencia (notebook 01). Escribir Bronze de eventos particionado por fecha del evento deja 3.600 archivos de 12 eventos (5,6 KB cada uno). Por fecha de ingesta deja 60 archivos de 720 eventos.
+Evidencia (notebook 01). Escribir Bronze de eventos particionado por fecha del evento deja 3.600 archivos de 12 eventos (5,6 KB cada uno). Por fecha de ingesta deja 60 archivos de 720 eventos. Son cifras de una máquina de 8 núcleos: cada tarea escribe un archivo por carpeta y la cantidad de tareas por micro-lote depende de los núcleos. En Colab, con 2 núcleos, quedan 1.440 archivos contra 24. La proporción, 60 a 1, no cambia.
 
 Decisión.
 

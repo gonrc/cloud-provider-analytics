@@ -200,7 +200,7 @@ Nombres de tablas y columnas en `snake_case` y en inglés, como vienen en la fue
 
 | Tabla | Partición | Por qué |
 |---|---|---|
-| Bronze `usage_events` | `ingest_date` | Probado en el notebook: particionar por la fecha del evento deja 3.600 archivos de 12 eventos (5 KB cada uno), porque cada micro-lote trae eventos de los 60 días y escribe en las 60 carpetas. Por fecha de ingesta quedan 60 archivos de 720 eventos. Bronze es append y se lee completo para construir Silver, así que no gana nada con la fecha del evento |
+| Bronze `usage_events` | `ingest_date` | Probado en el notebook: particionar por la fecha del evento deja 3.600 archivos de 12 eventos (5 KB cada uno), porque cada micro-lote trae eventos de los 60 días y escribe en las 60 carpetas. Por fecha de ingesta quedan 60 archivos de 720 eventos. Cada tarea escribe un archivo por carpeta, y la cantidad de tareas por micro-lote depende de los núcleos de la máquina: estas cifras salen de una de 8 núcleos (5 tareas por lote), y en Colab, con 2 núcleos (2 tareas por lote), quedan 1.440 archivos contra 24. La proporción, 60 a 1, es la misma. Bronze es append y se lee completo para construir Silver, así que no gana nada con la fecha del evento |
 | Silver `usage_events` | `event_date` | Las consultas y los marts filtran por fecha de uso. 60 particiones de unos 720 eventos |
 | Gold diarios | `usage_date` (o la fecha del grano) | Mismo filtro que las consultas de rango de fechas |
 | Bronze y Silver `billing_monthly` | `month` | Es la unidad de carga: cada cierre agrega un mes |
