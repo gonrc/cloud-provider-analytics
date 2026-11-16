@@ -12,10 +12,13 @@ Cada decisión tiene estado, contexto, alternativas y consecuencias. Las abierta
 | D-06 | Watermark sobre `ingest_ts`; los tardíos no se descartan | Tomada | 28/09/2026 |
 | D-07 | Particionado por zona | Tomada | 04/10/2026 |
 | D-08 | Parquet sin Delta Lake | Tomada | 04/10/2026 |
-| D-09 | Serving en AstraDB o Cassandra local | Abierta | Entrega 2 |
+| D-09 | Serving en Cassandra local | Tomada | 15/11/2026 |
 | D-10 | Facturación: tipo de cambio en USD, subtotales negativos y revenue | Tomada | 04/10/2026 |
-| D-11 | Criterio de spikes de costo | Abierta | Entrega 2 |
+| D-11 | Anomalías de costo: z robusto sobre log del costo diario, por organización y servicio | Tomada | 15/11/2026 |
 | D-12 | Costo estimado de GenAI | Tomada | 04/10/2026 |
+| D-13 | foreachBatch idempotente: una partición por micro-lote | Tomada | 15/11/2026 |
+| D-14 | Cassandra: una tabla por consulta | Tomada | 15/11/2026 |
+| D-15 | Capa speed: cada micro-lote recalcula las fechas que tocó | Tomada | 15/11/2026 |
 
 ---
 
@@ -122,11 +125,13 @@ Por qué.
 - La idempotencia no necesita `MERGE` en este diseño: checkpoints del streaming, claves naturales, sobrescritura dinámica de particiones (`partitionOverwriteMode=dynamic`) y upserts en Cassandra, que escribe por clave primaria. Cada reproceso recalcula particiones completas, así que pisar la partición alcanza.
 - Suma una dependencia (`delta-spark`) que habría que instalar en Colab.
 
-## D-09 · Serving en AstraDB o Cassandra local (abierta)
+## D-09 · Serving en Cassandra local
 
-Opciones. AstraDB en plan gratuito: funciona desde Colab sin instalar nada, depende de la red y de credenciales. Cassandra en Docker: no depende de la red, no corre en Colab.
+Opciones (entrega 1). AstraDB en plan gratuito: funciona desde Colab sin instalar nada, depende de la red y de credenciales. Cassandra local: no depende de la red, no corre en Colab.
 
-Criterio. Que el profesor pueda reproducir la demo. Plan alternativo: la otra opción, más capturas y salidas guardadas en `evidence/`.
+Decisión (15/11/2026). Cassandra 5.0.9 local, con el binario oficial de Apache sobre el mismo Java 17 del proyecto. No necesita cuentas ni credenciales, la demo no depende de la red y cualquiera la levanta con tres comandos (README, Quickstart). Docker es una alternativa equivalente (`cassandra:5.0`).
+
+Consecuencias. En Colab el pipeline corre con `--sin-serving` hasta Gold. Para la demo remota quedan la salida de cqlsh y la comparación contra el lake en `evidence/02_entrega/`. Si la cátedra pide AstraDB para la final, solo cambia la conexión en `serving.py`: el modelo de tablas y las consultas son CQL estándar.
 
 Con cualquiera de las dos, la carga desde Spark va con el driver de Python de Cassandra dentro de `foreachBatch` (o desde el driver de Spark para los marts batch), porque el conector de Spark para Cassandra no está publicado para Spark 4 (D-02). La consigna permite las dos vías (4.4) y los marts de Gold son chicos.
 
@@ -142,11 +147,15 @@ Revenue. (subtotal − créditos + impuestos) × tipo de cambio, con `credits` n
 
 Lo que nos llama la atención. 50 de las 80 organizaciones cambian de moneda entre un mes y otro, y los montos en ARS son del mismo orden que en USD (mediana de 816 pesos contra 655 dólares). Al convertir, cada factura en pesos queda en uno o dos dólares, y el revenue de esas organizaciones salta de un mes a otro por la moneda y no por el consumo. Se aplica la conversión como viene, porque la consigna pide revenue normalizado a USD, y el mart conserva la moneda original y el tipo de cambio para poder revisarlo.
 
-## D-11 · Criterio de spikes de costo (abierta)
+## D-11 · Anomalías de costo: z robusto sobre log del costo diario, por organización y servicio
 
-Evidencia (notebook 01). z robusto (MAD) mayor a 3,5 sobre el costo marca 12.448 eventos (29%). El mismo criterio sobre `log(1 + costo)` marca 52. Costo mayor a 5 veces el p99 del servicio marca 75.
+Evidencia de la entrega 1 (notebook 01). A nivel evento, z robusto (MAD) mayor a 3,5 sobre el costo marca 12.448 eventos (29%). El mismo criterio sobre `log(1 + costo)` marca 52. Costo mayor a 5 veces el p99 del servicio marca 75. Criterio preliminar de entonces: z robusto sobre el logaritmo, por servicio.
 
-Criterio preliminar: z robusto sobre el logaritmo, por servicio. El umbral se fija en la entrega 2.
+Decisión (15/11/2026). El score se calcula en Gold, al grano del mart (organización, día y servicio), porque es la pregunta de FinOps: si una organización gastó en un servicio fuera de lo que suele gastar. Por eso la línea base es la historia de la misma organización y servicio, no la del servicio entre todas las organizaciones. Umbral 3,5 sobre el logaritmo y al menos 14 días de historia (`config/settings.toml`, sección `anomaly`).
+
+Evidencia (experimento E3, `evidence/02_entrega/exp_e3_umbral_anomalias.csv`). Con 3,5 se marcan 63 de 11.050 días (0,57%) en 38 organizaciones. Bajar a 3 suma 20 días; subir a 4 saca 16. La línea base por servicio entre organizaciones marca 59, y 46 coinciden con la elegida: los dos criterios ven casi lo mismo, pero la línea base propia no castiga a una organización grande por ser grande.
+
+Consecuencias. No hay etiquetas de anomalía en el dataset, así que no se puede medir precisión. El umbral queda como parámetro y la lista de los 10 días con mayor score está en `evidence/02_entrega/anomalias_top10.csv` para revisión.
 
 ## D-12 · Costo estimado de GenAI
 
@@ -169,3 +178,34 @@ Precio de referencia. Precios por millón de tokens de entrada y de salida a oct
 La mezcla supone 3 tokens de entrada por cada uno de salida, que es lo habitual en chat y búsqueda sobre documentos. Se toman 2 USD por millón, el valor de un modelo de gama media. Con los 2.545.481 tokens del dataset da 5,09 USD, contra 22.263,35 USD de `cost_usd_increment` en los mismos eventos.
 
 Consecuencias. El precio es un supuesto y se cambia en la configuración sin tocar código. Las dos columnas responden la consulta 5 con cualquiera de las dos lecturas de "costo estimado".
+
+## D-13 · foreachBatch idempotente: una partición por micro-lote
+
+Contexto. Con foreachBatch, Spark garantiza que cada lote se procesa al menos una vez: si falla después de escribir y antes de confirmar en el checkpoint (hay `offsets/N` sin `commits/N`), repite el lote N con los mismos datos. Un append simple lo duplicaría.
+
+Decisión. Bronze de eventos se escribe particionado por `ingest_date` y `batch_id`, con overwrite dinámico. Repetir el lote N pisa su propia partición. Silver, Gold y quarantine también se escriben con overwrite dinámico de las particiones afectadas, y Cassandra hace upsert por clave primaria.
+
+Evidencia (`evidence/02_entrega/idempotencia.csv`). Re-ejecutar el pipeline con el mismo checkpoint no procesa lotes nuevos y deja todos los conteos iguales. Borrar el checkpoint, que en clase se marca como causa de duplicados, vuelve a procesar los 12 lotes: como caen en las mismas particiones `batch_id`, Bronze tampoco se duplica. Si el reproceso cayera otro día, Bronze tendría dos copias y la regla de unicidad de Silver las separa (experimento E1).
+
+## D-14 · Cassandra: una tabla por consulta
+
+Contexto. En Cassandra solo se puede filtrar por la clave de partición y, en orden, por las columnas de clustering. Una consulta que no respeta eso necesita `ALLOW FILTERING`, que recorre todo el clúster.
+
+Decisión. Dos tablas con la misma partición (`org_id`) y distinto clustering, cargadas desde el mismo mart:
+
+| Tabla | Clave | Consulta |
+|---|---|---|
+| `org_daily_usage_by_service` | `((org_id), usage_date, service)` | Costos y requests diarios de una organización en un rango de fechas |
+| `org_service_daily_cost` | `((org_id), service, usage_date)` | Top-N servicios por costo de los últimos 14 días: `GROUP BY service` sobre el prefijo de clustering |
+
+Evidencia. La consulta 2 sin `service IN (...)` falla: Cassandra no permite restringir `usage_date` si no se restringió antes `service`. Con el `IN` lee una sola partición y suma por servicio. CQL no ordena por un agregado, así que el orden descendente se aplica al leer (son 6 servicios). El experimento E5 compara las dos consultas contra Gold en el lake: coinciden fila por fila.
+
+Consecuencias. Cada consulta nueva de la entrega final suma su propia tabla. La partición por organización tiene unas 140 filas por tabla; con más historia convendría partir por organización y mes.
+
+## D-15 · Capa speed: cada micro-lote recalcula las fechas que tocó
+
+Contexto. Como cada archivo trae eventos de los 60 días (D-06), una agregación en streaming por fecha de evento pierde casi todo. El experimento E2 lo mide con el patrón de clase (watermark sobre `timestamp`, ventana de un día y modo append): con 1 hora se pierde el 83,6% de los eventos y con 7 días el 85,6%, porque las ventanas de la última semana nunca se cierran y no se emiten.
+
+Decisión. El foreachBatch escribe Bronze y recalcula Silver y Gold solo para las fechas de evento que trajo el lote, y hace upsert de esas fechas en Cassandra. La capa batch vuelve a calcular todo al final y deja la cifra definitiva.
+
+Costo medido (`evidence/02_entrega/streaming_lotes.csv`). Con estos datos cada lote toca las 60 fechas, así que cada recálculo es completo: entre 10 y 22 segundos por lote con serving, 12 lotes, unos 3 minutos en total (177 segundos en la corrida de la evidencia). Con datos que llegan mayormente en orden, cada lote tocaría uno o dos días.

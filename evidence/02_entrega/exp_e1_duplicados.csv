@@ -1,0 +1,3 @@
+escenario,eventos_en_landing,lotes,descartados_por_dedupe_streaming,filas_en_bronze,duplicados_en_quarantine_silver,filas_en_silver
+reenvío dentro de la ventana (1 hour),43560,13,360,43200,0,42989
+reenvío fuera de la ventana (simulado con 1 second),43560,13,0,43560,360,42989

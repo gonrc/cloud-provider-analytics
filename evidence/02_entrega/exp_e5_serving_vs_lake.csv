@@ -1,0 +1,8 @@
+consulta,filas_cassandra,filas_lake,costo_cassandra,costo_lake
+1: rango de fechas,34,34,480.5494,480.5494
+2: analytics,1,1,282.0746,282.0746
+2: compute,1,1,237.477,237.477
+2: database,1,1,182.7793,182.7793
+2: genai,1,1,271.2743,271.2743
+2: networking,1,1,15.4267,15.4267
+2: storage,1,1,36.266,36.266

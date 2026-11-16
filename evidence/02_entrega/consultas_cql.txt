@@ -1,0 +1,71 @@
+-- Salida de cqlsh -f cql/queries.cql, 2026-11-16T02:50:16+00:00
+
+ usage_date | service    | daily_cost_usd | requests | events
+------------+------------+----------------+----------+--------
+ 2025-08-31 |  analytics |        47.3679 |      604 |      6
+ 2025-08-31 |    compute |         1.0125 |     null |      6
+ 2025-08-31 |   database |         1.7011 |     null |      3
+ 2025-08-31 |      genai |        15.1432 |      112 |      3
+ 2025-08-31 |    storage |         2.6436 |      125 |      3
+ 2025-08-30 |    compute |        11.3755 |      112 |      6
+ 2025-08-30 |   database |        19.2887 |      365 |      6
+ 2025-08-30 |      genai |        33.0729 |      243 |      3
+ 2025-08-30 | networking |          3.405 |      321 |      3
+ 2025-08-30 |    storage |         2.6326 |      114 |      3
+ 2025-08-29 |  analytics |        17.2923 |      234 |      3
+ 2025-08-29 |    compute |         0.4647 |     null |      3
+ 2025-08-29 |   database |        10.3658 |      201 |      3
+ 2025-08-29 | networking |         1.2445 |      109 |      3
+ 2025-08-28 |  analytics |        14.5366 |      223 |      3
+ 2025-08-28 |    compute |        28.9662 |      370 |      6
+ 2025-08-28 |   database |        22.1574 |      374 |      6
+ 2025-08-28 |      genai |        14.9901 |      120 |      3
+ 2025-08-28 | networking |         2.4788 |      240 |      3
+ 2025-08-28 |    storage |         4.9234 |      238 |      3
+ 2025-08-27 |  analytics |        18.0925 |      226 |      3
+ 2025-08-27 |    compute |        42.1894 |      516 |      6
+ 2025-08-27 |   database |        10.6345 |      238 |      3
+ 2025-08-27 |      genai |        43.6883 |      349 |      3
+ 2025-08-27 |    storage |         0.2769 |     null |      3
+ 2025-08-26 |  analytics |        30.2047 |      335 |      6
+ 2025-08-26 |    compute |        18.5113 |      225 |      3
+ 2025-08-26 |   database |        24.9761 |      355 |      6
+ 2025-08-26 |      genai |         1.8175 |     null |      3
+ 2025-08-26 | networking |          1.192 |      122 |      3
+ 2025-08-26 |    storage |         2.7482 |      121 |      3
+ 2025-08-25 |  analytics |        22.3512 |      340 |      6
+ 2025-08-25 |   database |         6.2304 |      107 |      3
+ 2025-08-25 | networking |         2.5736 |      248 |      3
+
+(34 rows)
+
+ service    | cost_last_14d | days
+------------+---------------+------
+  analytics |      282.0746 |   13
+    compute |       237.477 |   12
+   database |      182.7793 |   14
+      genai |      271.2743 |   11
+ networking |       15.4267 |    7
+    storage |        36.266 |   11
+
+(6 rows)
+
+ filas_org_daily_usage_by_service
+----------------------------------
+                            11050
+
+(1 rows)
+
+Warnings :
+Aggregation query used without partition key
+
+
+ filas_org_service_daily_cost
+------------------------------
+                        11050
+
+(1 rows)
+
+Warnings :
+Aggregation query used without partition key
+

@@ -1,0 +1,11 @@
+org_id,usage_date,service,daily_cost_usd,baseline_daily_cost_usd,anomaly_score,history_days
+org_w3zp08j3,2025-07-05,networking,27.4203,1.4849,8.113,37
+org_w3zp08j3,2025-07-16,networking,26.4157,1.4849,7.993,37
+org_874frhoc,2025-07-17,networking,27.651,1.708,7.551,31
+org_okep7y6w,2025-07-03,compute,202.646,11.1426,7.414,39
+org_41ibljh7,2025-08-12,networking,19.3869,1.3412,7.321,34
+org_okep7y6w,2025-08-07,compute,191.8968,11.1426,7.271,39
+org_x7eedtjv,2025-07-09,compute,311.255,12.9288,6.918,40
+org_y9v86wzs,2025-07-08,networking,21.8161,1.4947,6.847,38
+org_pnsm43d8,2025-07-17,storage,56.6704,3.213,6.471,36
+org_x7eedtjv,2025-08-23,compute,211.2481,12.9288,6.059,40

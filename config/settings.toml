@@ -26,9 +26,22 @@ max_files_per_trigger = 10
 # Umbral para marcar un evento como tardío (no se descarta). Ver D-06.
 late_threshold = "1 hour"
 
+[quality]
+# Costo mínimo aceptado por evento. Entre -0,01 y 0 se toma como redondeo (D-04, 7.5).
+min_cost_usd = -0.01
+
+[anomaly]
+# z robusto (MAD) sobre log(1 + costo diario) por organización y servicio (D-11).
+z_threshold = 3.5
+# Días mínimos de historia de una organización y servicio para calcular el score.
+min_days = 14
+
 [serving]
-# Se completa en la segunda entrega. Las credenciales van en .env, nunca acá.
+# Cassandra local (D-09). Si hiciera falta usuario y clave, van en .env, nunca acá.
+host = "127.0.0.1"
+port = 9042
 keyspace = "cloud_analytics"
+replication_factor = 1
 
 [genai]
 # Precio de referencia para el costo estimado por tokens (DECISIONS.md, D-12), en USD por

@@ -1,0 +1,150 @@
+{
+  "run_id": "20261116T024214Z-b10878",
+  "step": "pipeline",
+  "started_at": "2026-11-16T02:42:14+00:00",
+  "finished_at": "2026-11-16T02:45:47+00:00",
+  "counts": {
+    "bronze.customers_orgs": {
+      "landing": 80,
+      "bronze": 80,
+      "quarantine": 0,
+      "partition": "ingest_date"
+    },
+    "bronze.users": {
+      "landing": 800,
+      "bronze": 800,
+      "quarantine": 0,
+      "partition": "ingest_date"
+    },
+    "bronze.resources": {
+      "landing": 400,
+      "bronze": 400,
+      "quarantine": 0,
+      "partition": "ingest_date"
+    },
+    "bronze.support_tickets": {
+      "landing": 1000,
+      "bronze": 1000,
+      "quarantine": 0,
+      "partition": "ingest_date"
+    },
+    "bronze.marketing_touches": {
+      "landing": 1500,
+      "bronze": 1500,
+      "quarantine": 0,
+      "partition": "ingest_date"
+    },
+    "bronze.nps_surveys": {
+      "landing": 92,
+      "bronze": 92,
+      "quarantine": 0,
+      "partition": "ingest_date"
+    },
+    "bronze.billing_monthly": {
+      "landing": 240,
+      "bronze": 240,
+      "quarantine": 0,
+      "partition": "month"
+    },
+    "silver.customers_orgs": {
+      "rows": 80,
+      "nps_fuera_de_rango": 1,
+      "plan_inconsistente": 25
+    },
+    "silver.resources": {
+      "rows": 400,
+      "pii": 85
+    },
+    "silver.users": {
+      "rows": 800,
+      "login_anterior_al_alta": 232
+    },
+    "silver.billing_monthly": {
+      "bronze": 240,
+      "silver": 227,
+      "quarantine": 13,
+      "fx_forzado": 150,
+      "creditos_completados": 133
+    },
+    "silver.usage_events": {
+      "bronze": 43200,
+      "silver": 42989,
+      "quarantine": 211,
+      "quarantine_por_regla": {
+        "costo_negativo": 211
+      },
+      "tardios": 39375,
+      "unit_completada": 2033,
+      "fechas": 60
+    },
+    "gold.org_daily_usage_by_service": {
+      "filas": 11050,
+      "costo_silver": 148351.58,
+      "costo_gold": 148351.58,
+      "fechas": 60
+    },
+    "serving.org_daily_usage_by_service": {
+      "filas_gold": 11050,
+      "filas_cassandra": 11050,
+      "errores": 0,
+      "segundos": 4.0,
+      "fechas": null
+    },
+    "streaming": {
+      "lotes": 13,
+      "eventos_bronze": 43200
+    },
+    "gold.cost_anomaly_mart": {
+      "filas": 11050,
+      "con_score": 11050,
+      "anomalias": 63,
+      "umbral": 3.5
+    }
+  },
+  "checks": {
+    "bronze.customers_orgs.conteo": {
+      "ok": true,
+      "detail": "80 = 80 + 0"
+    },
+    "bronze.users.conteo": {
+      "ok": true,
+      "detail": "800 = 800 + 0"
+    },
+    "bronze.resources.conteo": {
+      "ok": true,
+      "detail": "400 = 400 + 0"
+    },
+    "bronze.support_tickets.conteo": {
+      "ok": true,
+      "detail": "1000 = 1000 + 0"
+    },
+    "bronze.marketing_touches.conteo": {
+      "ok": true,
+      "detail": "1500 = 1500 + 0"
+    },
+    "bronze.nps_surveys.conteo": {
+      "ok": true,
+      "detail": "92 = 92 + 0"
+    },
+    "bronze.billing_monthly.conteo": {
+      "ok": true,
+      "detail": "240 = 240 + 0"
+    },
+    "silver.billing_monthly.conteo": {
+      "ok": true,
+      "detail": "240 = 227 + 13"
+    },
+    "silver.usage_events.conteo": {
+      "ok": true,
+      "detail": "43200 = 42989 + 211"
+    },
+    "gold.org_daily_usage_by_service.reconciliacion": {
+      "ok": true,
+      "detail": "Silver 148,351.58 USD vs Gold 148,351.58 USD"
+    },
+    "serving.carga_sin_errores": {
+      "ok": true,
+      "detail": "11050 filas por tabla, 0 errores"
+    }
+  }
+}

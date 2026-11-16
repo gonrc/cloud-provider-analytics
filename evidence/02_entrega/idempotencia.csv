@@ -1,0 +1,23 @@
+tabla,antes,reejecucion_mismo_checkpoint,reejecucion_sin_checkpoint,igual
+bronze/billing_monthly,240,240,240,True
+bronze/customers_orgs,80,80,80,True
+bronze/marketing_touches,1500,1500,1500,True
+bronze/nps_surveys,92,92,92,True
+bronze/resources,400,400,400,True
+bronze/support_tickets,1000,1000,1000,True
+bronze/usage_events,43200,43200,43200,True
+bronze/users,800,800,800,True
+cassandra/org_daily_usage_by_service,11050,11050,11050,True
+cassandra/org_service_daily_cost,11050,11050,11050,True
+gold/costo_total_usd,148351.58,148351.58,148351.58,True
+gold/finops/cost_anomaly_mart,11050,11050,11050,True
+gold/finops/org_daily_usage_by_service,11050,11050,11050,True
+quarantine/billing_monthly_silver,13,13,13,True
+quarantine/usage_events,211,211,211,True
+silver/billing_monthly,227,227,227,True
+silver/customers_orgs,80,80,80,True
+silver/resources,400,400,400,True
+silver/usage_events,42989,42989,42989,True
+silver/usage_events event_id distintos,42989,42989,42989,True
+silver/users,800,800,800,True
+streaming: micro-lotes ejecutados (incluye el lote vacío con que Spark cierra),,0,13,

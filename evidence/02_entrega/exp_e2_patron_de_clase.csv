@@ -1,0 +1,3 @@
+configuracion,filas_gold,filas_gold_lambda,eventos_contados,eventos_validos,pct_eventos_perdidos,costo_usd,costo_usd_lambda,descartados_por_watermark
+watermark 1 hour sobre timestamp + ventana de 1 día + append,5332,11050,7045,42989,83.6,24936.17,148351.58,30373
+watermark 7 days sobre timestamp + ventana de 1 día + append,4683,11050,6182,42989,85.6,22154.97,148351.58,26811
