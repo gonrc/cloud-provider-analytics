@@ -77,7 +77,7 @@ Cada paso también se puede correr suelto: `make bronze`, `make silver`, `make s
 
 Colab ya trae PySpark 4.0.4 y Java 21, así que no hay que instalar nada. Hay dos notebooks que se abren directo desde GitHub:
 
-- [02_pipeline_entrega2.ipynb en Colab](https://colab.research.google.com/github/gonrc/cloud-provider-analytics/blob/main/notebooks/02_pipeline_entrega2.ipynb): corre el pipeline de la entrega 2 sin serving, porque Colab no tiene Cassandra, y muestra conteos, controles, micro-lotes, quarantine y Gold. Tarda unos 6 minutos.
+- [02_pipeline_entrega2.ipynb en Colab](https://colab.research.google.com/github/gonrc/cloud-provider-analytics/blob/main/notebooks/02_pipeline_entrega2.ipynb): corre el pipeline de la entrega 2 sin serving, porque Colab no tiene Cassandra, y muestra conteos, controles, micro-lotes, quarantine y Gold. Tarda unos 7 minutos.
 - [01_exploracion_landing.ipynb en Colab](https://colab.research.google.com/github/gonrc/cloud-provider-analytics/blob/main/notebooks/01_exploracion_landing.ipynb): la exploración de la entrega 1.
 
 ## Estructura

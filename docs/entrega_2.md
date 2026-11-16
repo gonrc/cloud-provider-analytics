@@ -67,6 +67,7 @@ En cada fila de la tabla, lo que entra es igual a lo que sale más lo que va a q
 **Streaming.** Lee el directorio con el esquema explícito, 10 archivos por lote. El watermark es de 1 hora sobre `ingest_ts`, con `dropDuplicatesWithinWatermark(["event_id"])` y checkpoint propio. El foreachBatch escribe Bronze en la partición de su lote y recalcula Silver y Gold de las fechas que tocó. Los 12 lotes tocan las 60 fechas: los archivos vienen desordenados. A partir del segundo lote casi todos los eventos son tardíos respecto de lo ya visto: 39.375 de 42.989. No se descarta ninguno; quedan marcados con `is_late` y se cuentan en `late_events` del mart.
 
 **Reglas de calidad (Silver).** Con quarantine:
+
 - `event_id` nulo o repetido;
 - costo menor a -0,01;
 - `value` no numérico;
@@ -74,6 +75,7 @@ En cada fila de la tabla, lo que entra es igual a lo que sale más lo que va a q
 - subtotal negativo en facturación.
 
 Con flag, sin sacar la fila:
+
 - `unit` completada desde `metric` (2.033 eventos);
 - costo entre -0,01 y 0, tomado como redondeo;
 - tipo de cambio de USD forzado a 1 (150 facturas);
@@ -165,6 +167,7 @@ Con una línea base por servicio, que compara a cada organización con todas las
 **Hipótesis.** Las dos consultas sobre Cassandra devuelven lo mismo que Gold en Parquet.
 
 **Evidencia** (`exp_e5_serving_vs_lake.csv`):
+
 - Consulta 1: 34 filas y 480,5494 USD en los dos lados.
 - Consulta 2: los seis servicios con el mismo costo hasta el cuarto decimal.
 
@@ -179,6 +182,7 @@ Con una línea base por servicio, que compara a cada organización con todas las
 **Ejecución.** `make idempotencia` toma 21 conteos: las 19 tablas de Bronze, Silver, Gold, quarantine y Cassandra, el costo total de Gold y los `event_id` distintos de Silver. Después corre el pipeline completo dos veces, la segunda con el checkpoint borrado, y vuelve a contar.
 
 **Evidencia** (`idempotencia.csv`). Los 21 conteos dan lo mismo en los tres momentos.
+
 - **Con el mismo checkpoint:** el streaming no procesa ningún lote.
 - **Sin checkpoint:** vuelve a procesar los 12 lotes, pero cada uno cae en su misma partición `batch_id` y Bronze sigue en 43.200 filas.
 
@@ -228,7 +232,7 @@ La carga usa el driver de Python, porque el conector de Spark para Cassandra no 
   - el cálculo de tardíos;
   - el cast con fallback;
   - el control de Landing.
-- **Reproducibilidad:** desde un entorno limpio son `make setup`, Cassandra con tres comandos y `make pipeline` (README, Quickstart). `make reset` vuelve el lake al estado inicial sin tocar Landing. En Colab, el notebook [`02_pipeline_entrega2.ipynb`](../notebooks/02_pipeline_entrega2.ipynb) corre el pipeline sin serving hasta Gold y muestra los resultados.
+- **Reproducibilidad:** desde un entorno limpio son `make setup`, Cassandra con tres comandos y `make pipeline` (README, Quickstart). `make reset` vuelve el lake al estado inicial sin tocar Landing. En Colab, el notebook [`02_pipeline_entrega2.ipynb`](../notebooks/02_pipeline_entrega2.ipynb) corre el pipeline sin serving hasta Gold y muestra los resultados. Se probó en Colab el 16/11/2026: 392 segundos, con los mismos conteos y controles que en local.
 
 ## 7. Limitaciones y lo que sigue
 
